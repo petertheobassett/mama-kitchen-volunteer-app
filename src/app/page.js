@@ -65,7 +65,7 @@ export default function Home() {
                     /> {vol}
                   </label>
                   {phone ? (
-                    <a href={`tel:${phone}`} style={buttonStyle}>{phone}</a>
+                    <a href={`sms:${phone}`} style={buttonStyle}>{phone}</a>
                   ) : null}
                 </div>
               ) : null
