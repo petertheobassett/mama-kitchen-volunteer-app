@@ -36,9 +36,21 @@ export default function Home() {
 
   events.forEach((row, rowIndex) => {
     const [dateStr] = row;
-    const eventDate = new Date(dateStr);
-    const isFuture = eventDate >= new Date(today.setHours(0, 0, 0, 0));
 
+    let eventDate;
+    const parts = dateStr?.split(/[\/\-]/);
+    if (parts?.length === 3) {
+      eventDate = new Date(`${parts[2]}-${parts[0]}-${parts[1]}`);
+    } else {
+      eventDate = new Date(dateStr); // fallback
+    }
+
+    if (!eventDate || isNaN(eventDate)) {
+      console.warn('⚠️ Invalid date format:', dateStr);
+      return;
+    }
+
+    const isFuture = eventDate >= new Date(new Date().setHours(0, 0, 0, 0));
     (isFuture ? futureEvents : pastEvents).push({ row, rowIndex });
   });
 
