@@ -53,24 +53,19 @@ export default function Home() {
                 return acc;
               }, [])
               .map(([vol, phone, att], i) => (
-                vol ? (
+                vol || phone ? (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                     <label>
                       <input
                         type="checkbox"
-                        defaultChecked={att === 'TRUE' || att === '👍'}
+                        defaultChecked={att === 'TRUE'}
                         onChange={e => toggleAttendance(rowIndex + 2, i + 1, e.target.checked)}
-                      /> {vol}
+                      /> {vol || phone}
                     </label>
-                    {phone ? (
-                      <a href={`sms:${phone}`} style={buttonStyle}>{phone}</a>
-                    ) : (
-                      <span style={{ ...buttonStyle, background: '#999', cursor: 'not-allowed' }}>{vol}</span>
-                    )}
+                    <a href={`sms:${phone}`} className="button">{vol ? phone : ''}</a>
                   </div>
                 ) : null
               ))}
-
           </div>
         );
       })}
