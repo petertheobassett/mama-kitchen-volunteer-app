@@ -30,33 +30,32 @@ export default function Home() {
       .catch(() => alert('Network error'));
   }
 
-  const today = new Date();
   const futureEvents = [];
   const pastEvents = [];
 
   events.forEach((row, rowIndex) => {
     const [dateStr] = row;
-
     let eventDate;
 
     if (typeof dateStr === 'number') {
-      // Google Sheets sometimes sends dates as serial numbers
       const serialOffset = Date.UTC(1899, 11, 30); // Excel base date
       eventDate = new Date(serialOffset + dateStr * 86400000);
     } else if (typeof dateStr === 'string') {
-      eventDate = new Date(dateStr);
-      if (isNaN(eventDate)) {
-        const parts = dateStr.split(/[\/\-]/);
-        if (parts.length === 3) {
-          const [month, day, year] = parts;
-          eventDate = new Date(`${year}-${month}-${day}`);
-        }
-      }
-    } else if (dateStr instanceof Date) {
-      eventDate = dateStr;
-    }
+      const cleaned = dateStr.trim();
 
-    console.log('📅 Parsed:', dateStr, '→', eventDate?.toString());
+      const isoLike = cleaned.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+      const usLike = cleaned.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+
+      if (isoLike) {
+        const [ , y, m, d ] = isoLike;
+        eventDate = new Date(Number(y), Number(m) - 1, Number(d));
+      } else if (usLike) {
+        const [ , m, d, y ] = usLike;
+        eventDate = new Date(Number(y), Number(m) - 1, Number(d));
+      } else {
+        eventDate = new Date(cleaned);
+      }
+    }
 
     if (!eventDate || isNaN(eventDate)) {
       console.warn('⚠️ Invalid date format:', dateStr);
