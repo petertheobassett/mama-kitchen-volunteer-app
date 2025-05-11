@@ -59,7 +59,7 @@ export default function Home() {
                         onChange={e => toggleAttendance(rowIndex + 2, i + 1, e.target.checked)}
                       /> {vol}
                     </label>
-                    <a href={`tel:${(phone || '').replace(/\D/g, '')}`} style={buttonStyle}>Call</a>
+                    <a href={`tel:${phone}`} className="button">{phone}</a>
                   </div>
                 ) : null
               ))}
