@@ -8,6 +8,7 @@ export default function Home() {
   useEffect(() => {
     const testData = [
       // [serialDate, eventName, expected, lead, leadPhone, vol1, phone1, vol2, phone2, ..., att1–att5]
+      [45546, 'Ice Cream Social', 30, 'Mariah', '5552220000', 'Liam', '5550001111', '', '', '', '', '', '', '', '', '', '', '', '', ''],
       [45500, 'BBQ Lunch', 50, 'Sally', '5551230000', 'Jane Doe', '5551112222', 'John Smith', '5553334444', '', '', '', '', '', '', '👍', '', '', '', ''],
       [45490, 'Pasta Night', 40, 'Bob', '5559998888', 'Mary Jane', '5555551212', '', '', '', '', '', '', '', '', '', '', '', '', '']
     ];
