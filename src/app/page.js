@@ -30,50 +30,67 @@ export default function Home() {
       .catch(() => alert('Network error'));
   }
 
+  const today = new Date();
+  const futureEvents = [];
+  const pastEvents = [];
+
+  events.forEach((row, rowIndex) => {
+    const [dateStr] = row;
+    const eventDate = new Date(dateStr);
+    const isFuture = eventDate >= new Date(today.setHours(0, 0, 0, 0));
+
+    (isFuture ? futureEvents : pastEvents).push({ row, rowIndex });
+  });
+
   return (
     <div style={{ padding: '16px', fontFamily: 'sans-serif', background: '#f2f2f2' }}>
       <h2 style={{ textAlign: 'center', padding: '12px 0' }}>MCMA Kitchen Volunteers</h2>
 
+      <h3 style={{ padding: '8px 0' }}>🔵 Upcoming Events</h3>
+      {futureEvents.map(({ row, rowIndex }) => renderEvent(row, rowIndex, toggleAttendance))}
 
-      {events.map((row, rowIndex) => {
-        const [date, eventName, expected, lead, leadPhone,
-          vol1, phone1, vol2, phone2, vol3, phone3, vol4, phone4, vol5, phone5,
-          att1, att2, att3, att4, att5] = row;
+      <h3 style={{ padding: '16px 0 8px' }}>⚫ Past Events</h3>
+      {pastEvents.map(({ row, rowIndex }) => renderEvent(row, rowIndex, toggleAttendance))}
+    </div>
+  );
+}
 
-        if (!eventName) return null;
+function renderEvent(row, rowIndex, toggleAttendance) {
+  const [date, eventName, expected, lead, leadPhone,
+    vol1, phone1, vol2, phone2, vol3, phone3, vol4, phone4, vol5, phone5,
+    att1, att2, att3, att4, att5] = row;
 
-        return (
-          <div key={rowIndex} style={{ background: 'white', padding: '16px', marginBottom: '24px', borderRadius: '10px' }}>
-            <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-              {eventName} ({date})
-            </div>
-            <div style={{ marginBottom: '8px', color: '#777' }}>Expected attendees: {expected}</div>
+  if (!eventName) return null;
 
-            {[
-              [vol1, phone1, att1],
-              [vol2, phone2, att2],
-              [vol3, phone3, att3],
-              [vol4, phone4, att4],
-              [vol5, phone5, att5]
-            ].map(([vol, phone, att], i) => (
-              vol ? (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      defaultChecked={att === 'TRUE' || att === '👍'}
-                      onChange={e => toggleAttendance(rowIndex + 2, i + 1, e.target.checked)}
-                    /> {vol}
-                  </label>
-                  {phone ? (
-                    <a href={`sms:${phone}`} style={buttonStyle}>{phone}</a>
-                  ) : null}
-                </div>
-              ) : null
-            ))}
+  return (
+    <div key={rowIndex} style={{ background: 'white', padding: '16px', marginBottom: '24px', borderRadius: '10px' }}>
+      <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
+        {eventName} ({date})
+      </div>
+      <div style={{ marginBottom: '8px', color: '#777' }}>Expected attendees: {expected}</div>
+
+      {[
+        [vol1, phone1, att1],
+        [vol2, phone2, att2],
+        [vol3, phone3, att3],
+        [vol4, phone4, att4],
+        [vol5, phone5, att5]
+      ].map(([vol, phone, att], i) => (
+        vol ? (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+            <label>
+              <input
+                type="checkbox"
+                defaultChecked={att === 'TRUE' || att === '👍'}
+                onChange={e => toggleAttendance(rowIndex + 2, i + 1, e.target.checked)}
+              /> {vol}
+            </label>
+            {phone ? (
+              <a href={`tel:${phone}`} style={buttonStyle}>{phone}</a>
+            ) : null}
           </div>
-        );
-      })}
+        ) : null
+      ))}
     </div>
   );
 }
