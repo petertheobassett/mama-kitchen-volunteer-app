@@ -38,12 +38,25 @@ export default function Home() {
     const [dateStr] = row;
 
     let eventDate;
-    const parts = dateStr?.split(/[\/\-]/);
-    if (parts?.length === 3) {
-      eventDate = new Date(`${parts[2]}-${parts[0]}-${parts[1]}`);
-    } else {
-      eventDate = new Date(dateStr); // fallback
+
+    if (typeof dateStr === 'number') {
+      // Google Sheets sometimes sends dates as serial numbers
+      const serialOffset = Date.UTC(1899, 11, 30); // Excel base date
+      eventDate = new Date(serialOffset + dateStr * 86400000);
+    } else if (typeof dateStr === 'string') {
+      eventDate = new Date(dateStr);
+      if (isNaN(eventDate)) {
+        const parts = dateStr.split(/[\/\-]/);
+        if (parts.length === 3) {
+          const [month, day, year] = parts;
+          eventDate = new Date(`${year}-${month}-${day}`);
+        }
+      }
+    } else if (dateStr instanceof Date) {
+      eventDate = dateStr;
     }
+
+    console.log('📅 Parsed:', dateStr, '→', eventDate?.toString());
 
     if (!eventDate || isNaN(eventDate)) {
       console.warn('⚠️ Invalid date format:', dateStr);
