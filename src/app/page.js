@@ -7,13 +7,11 @@ export default function Home() {
 
   useEffect(() => {
     const testData = [
-      // Future event: June 15, 2025 → serial 45546
+      // June 15, 2025 (future event) → serial: 45546
       [45546, 'Ice Cream Social', 30, 'Mariah', '5552220000', 'Liam', '5550001111', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-    
-      // Past event: April 15, 2025 → serial 45500
+      // April 15, 2025 (past event) → serial: 45500
       [45500, 'BBQ Lunch', 50, 'Sally', '5551230000', 'Jane Doe', '5551112222', 'John Smith', '5553334444', '', '', '', '', '', '', '👍', '', '', '', '']
     ];
-    
     setEvents(testData);
   }, []);
 
@@ -23,8 +21,8 @@ export default function Home() {
 
   function getTodaySerial() {
     const now = new Date();
-    const utc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-    return Math.floor((utc - Date.UTC(1899, 11, 30)) / 86400000);
+    const utcMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    return Math.floor((utcMidnight - Date.UTC(1899, 11, 30)) / 86400000);
   }
 
   const todaySerial = getTodaySerial();
@@ -37,7 +35,7 @@ export default function Home() {
     if (!serial || isNaN(serial)) return;
 
     const dateObj = new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
-    const displayDate = dateObj.toDateString(); // e.g. "Mon May 13 2025"
+    const displayDate = dateObj.toDateString();
 
     const target = serial >= todaySerial ? futureEvents : pastEvents;
     target.push({ row, rowIndex, displayDate });
