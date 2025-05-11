@@ -8,9 +8,9 @@ export default function Home() {
   useEffect(() => {
     const testData = [
       // June 15, 2025 (future event) → serial: 45546
-      [45546, 'Ice Cream Social', 30, 'Mariah', '5552220000', 'Liam', '5550001111', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+      [45912, 'Ice Cream Social', 30, 'Mariah', '5552220000', 'Liam', '5550001111', '', '', '', '', '', '', '', '', '', '', '', '', ''],
       // April 15, 2025 (past event) → serial: 45500
-      [45500, 'BBQ Lunch', 50, 'Sally', '5551230000', 'Jane Doe', '5551112222', 'John Smith', '5553334444', '', '', '', '', '', '', '👍', '', '', '', '']
+      [45851, 'BBQ Lunch', 50, 'Sally', '5551230000', 'Jane Doe', '5551112222', 'John Smith', '5553334444', '', '', '', '', '', '', '👍', '', '', '', '']
     ];
     setEvents(testData);
   }, []);
