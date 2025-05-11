@@ -16,7 +16,11 @@ export default function Home() {
     fetch('/api/update-attendance', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ row, index, checked }),
+      body: JSON.stringify({
+        row,
+        index,
+        checked: checked ? '👍' : ''
+      }),
     })
       .then(res => res.json())
       .then(data => {
@@ -32,8 +36,7 @@ export default function Home() {
 
       {events.map((row, rowIndex) => {
         const [date, eventName, expected, lead, leadPhone,
-          vol1, phone1, vol2, phone2, vol3, phone3, vol4, phone4, vol5, phone5,
-          att1, att2, att3, att4, att5] = row;
+          vol1, phone1, att1, vol2, phone2, att2, vol3, phone3, att3, vol4, phone4, att4, vol5, phone5, att5] = row;
 
         if (!eventName) return null;
 
@@ -55,11 +58,11 @@ export default function Home() {
                     <label>
                       <input
                         type="checkbox"
-                        defaultChecked={att === 'TRUE'}
+                        defaultChecked={att === '👍'}
                         onChange={e => toggleAttendance(rowIndex + 2, i + 1, e.target.checked)}
                       /> {vol}
                     </label>
-                    <a href={`tel:${phone}`} className="button">{phone}</a>
+                    <a href={`tel:${phone}`} style={buttonStyle}>{phone}</a>
                   </div>
                 ) : null
               ))}
@@ -77,5 +80,6 @@ const buttonStyle = {
   padding: '6px 12px',
   borderRadius: '6px',
   textDecoration: 'none',
-  fontSize: '0.9em'
+  fontSize: '0.9em',
+  fontFamily: 'monospace',
 };
