@@ -8,22 +8,29 @@ export default function Home() {
   useEffect(() => {
     fetch('/api/get-events')
       .then(res => res.json())
-      .then(data => setEvents(data || []))
+      .then(data => {
+        setEvents(data || []);
+        console.log("Fetched events:", data);
+      })
       .catch(err => console.error('Fetch failed:', err));
   }, []);
 
   function formatDateString(dateString) {
+    console.log("Input dateString:", dateString);
     if (!dateString || typeof dateString !== 'string' || !dateString.includes('-')) {
+      console.log("Invalid date format");
       return new Date('').toDateString(); // Invalid date
     }
     const parts = dateString.split(', ')[1]?.split('-');
     if (!parts || parts.length !== 3) {
+      console.log("Parts are invalid:", parts);
       return new Date('').toDateString(); // Invalid format
     }
     const month = parseInt(parts[0], 10) - 1; // Month is 0-indexed
     const day = parseInt(parts[1], 10);
     const year = 2000 + parseInt(parts[2], 10); // Assuming all years are in the 21st century
     const date = new Date(year, month, day);
+    console.log("Parsed date:", date);
     return date.toDateString();
   }
 
@@ -46,17 +53,26 @@ export default function Home() {
   }
 
   const today = new Date();
+  console.log("Today's Date:", today.toDateString());
   const filteredEvents = events.filter(row => {
     const rawDate = row[0];
-    return rawDate && typeof rawDate === 'string' && rawDate.includes('-');
+    const isValid = rawDate && typeof rawDate === 'string' && rawDate.includes('-');
+    console.log("Filtering - Raw Date:", rawDate, "IsValid:", isValid);
+    return isValid;
   });
   const pastEvents = filteredEvents.filter(row => {
     const rawDate = row[0];
-    return rawDate && formatDateString(rawDate) < today;
+    const parsedDate = formatDateString(rawDate);
+    const isPast = rawDate && parsedDate < today;
+    console.log("Past Filter - Raw Date:", rawDate, "Parsed Date:", parsedDate, "Is Past:", isPast);
+    return isPast;
   });
   const futureEvents = filteredEvents.filter(row => {
     const rawDate = row[0];
-    return rawDate && formatDateString(rawDate) >= today;
+    const parsedDate = formatDateString(rawDate);
+    const isFuture = rawDate && parsedDate >= today;
+    console.log("Future Filter - Raw Date:", rawDate, "Parsed Date:", parsedDate, "Is Future:", isFuture);
+    return isFuture;
   });
 
   function renderEventGroup(events, title, color) {
@@ -123,6 +139,11 @@ export default function Home() {
       </>
     );
   }
+
+  console.log("All events:", events);
+  console.log("Filtered events:", filteredEvents);
+  console.log("Past events:", pastEvents);
+  console.log("Future events:", futureEvents);
 
   return (
     <div style={{ padding: '16px', fontFamily: 'sans-serif', background: '#f2f2f2' }}>
