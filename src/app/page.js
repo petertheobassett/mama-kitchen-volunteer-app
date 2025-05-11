@@ -6,28 +6,16 @@ export default function Home() {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    fetch('/api/get-events')
-      .then(res => res.json())
-      .then(data => setEvents(data || []))
-      .catch(err => console.error('Fetch failed:', err));
+    const testData = [
+      // [serialDate, eventName, expected, lead, leadPhone, vol1, phone1, vol2, phone2, ..., att1–att5]
+      [45500, 'BBQ Lunch', 50, 'Sally', '5551230000', 'Jane Doe', '5551112222', 'John Smith', '5553334444', '', '', '', '', '', '', '👍', '', '', '', ''],
+      [45490, 'Pasta Night', 40, 'Bob', '5559998888', 'Mary Jane', '5555551212', '', '', '', '', '', '', '', '', '', '', '', '', '']
+    ];
+    setEvents(testData);
   }, []);
 
   function toggleAttendance(row, index, checked) {
-    fetch('/api/update-attendance', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        row,
-        index,
-        checked: checked ? '👍' : ''
-      }),
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'OK') alert('Attendance saved ✔');
-        else alert('Error saving attendance');
-      })
-      .catch(() => alert('Network error'));
+    alert(`Would have saved: row ${row}, index ${index}, checked ${checked}`);
   }
 
   function getTodaySerial() {
