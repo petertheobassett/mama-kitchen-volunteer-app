@@ -24,7 +24,7 @@ export async function POST(req) {
       range: cell,
       valueInputOption: 'RAW',
       requestBody: {
-        values: [[checked]],
+        values: [[checked ? '👍' : '']],
       },
     });
 
