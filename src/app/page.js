@@ -41,20 +41,15 @@ export default function Home() {
   const pastEvents = [];
 
   events.forEach((row, rowIndex) => {
-    const [dateRaw] = row;
-    const serial = Number(dateRaw);
+    const [rawDate] = row;
+    const serial = Number(rawDate);
     if (!serial || isNaN(serial)) return;
 
     const dateObj = new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
-    const formattedDate = dateObj.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: '2-digit',
-      year: 'numeric',
-    });
+    const displayDate = dateObj.toDateString(); // e.g. "Mon May 13 2025"
 
-    const targetList = serial >= todaySerial ? futureEvents : pastEvents;
-    targetList.push({ row, rowIndex, formattedDate });
+    const target = serial >= todaySerial ? futureEvents : pastEvents;
+    target.push({ row, rowIndex, displayDate });
   });
 
   return (
@@ -70,7 +65,7 @@ export default function Home() {
   );
 }
 
-function renderEvent({ row, rowIndex, formattedDate }, toggleAttendance) {
+function renderEvent({ row, rowIndex, displayDate }, toggleAttendance) {
   const [_, eventName, expected, lead, leadPhone,
     vol1, phone1, vol2, phone2, vol3, phone3, vol4, phone4, vol5, phone5,
     att1, att2, att3, att4, att5] = row;
@@ -80,7 +75,7 @@ function renderEvent({ row, rowIndex, formattedDate }, toggleAttendance) {
   return (
     <div key={rowIndex} style={{ background: 'white', padding: '16px', marginBottom: '24px', borderRadius: '10px' }}>
       <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-        {eventName} ({formattedDate})
+        {eventName} ({displayDate})
       </div>
       <div style={{ marginBottom: '8px', color: '#777' }}>Expected attendees: {expected}</div>
 
@@ -89,20 +84,20 @@ function renderEvent({ row, rowIndex, formattedDate }, toggleAttendance) {
         [vol2, phone2, att2],
         [vol3, phone3, att3],
         [vol4, phone4, att4],
-        [vol5, phone5, att5]
+        [vol5, phone5, att5],
       ].map(([vol, phone, att], i) => (
         vol ? (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
             <label>
               <input
                 type="checkbox"
-                defaultChecked={att === 'TRUE' || att === '👍'}
+                defaultChecked={att === '👍' || att === 'TRUE'}
                 onChange={e => toggleAttendance(rowIndex + 2, i + 1, e.target.checked)}
               /> {vol}
             </label>
-            {phone ? (
+            {phone && (
               <a href={`tel:${phone}`} style={buttonStyle}>{phone}</a>
-            ) : null}
+            )}
           </div>
         ) : null
       ))}
