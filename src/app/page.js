@@ -32,7 +32,8 @@ export default function Home() {
 
   return (
     <div style={{ padding: '16px', fontFamily: 'sans-serif', background: '#f2f2f2' }}>
-      <h2>MCMA Kitchen Volunteers</h2>
+      <h2 style={{ textAlign: 'center', padding: '12px 0' }}>MCMA Kitchen Volunteers</h2>
+
 
       {events.map((row, rowIndex) => {
         const [date, eventName, expected, lead, leadPhone,
