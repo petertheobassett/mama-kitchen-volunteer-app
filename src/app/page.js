@@ -58,14 +58,19 @@ export default function Home() {
                     <label>
                       <input
                         type="checkbox"
-                        defaultChecked={att === '👍'}
+                        defaultChecked={att === 'TRUE' || att === '👍'}
                         onChange={e => toggleAttendance(rowIndex + 2, i + 1, e.target.checked)}
                       /> {vol}
                     </label>
-                    <a href={`tel:${phone}`} style={buttonStyle}>{phone}</a>
+                    {phone ? (
+                      <a href={`sms:${phone}`} style={buttonStyle}>{phone}</a>
+                    ) : (
+                      <span style={{ ...buttonStyle, background: '#999', cursor: 'not-allowed' }}>{vol}</span>
+                    )}
                   </div>
                 ) : null
               ))}
+
           </div>
         );
       })}
