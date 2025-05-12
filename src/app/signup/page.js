@@ -71,7 +71,7 @@ export default function SignupPage() {
     <div style={containerStyle}>
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
   <img
-    src="/media/mcmaLogo.png"
+    src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png"
     alt="MCMA Kitchen Logo"
     style={{ maxWidth: 120, marginBottom: 12 }}
   />

@@ -123,7 +123,7 @@ export async function POST(req) {
     const htmlBody = `
 <div style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#fff; padding:24px; border-radius:12px; border:1px solid #ddd; max-width:480px; margin:0 auto; font-size:16px; line-height:1.6;">
   <div style="text-align:center; margin-bottom:24px;">
-    <img src="https://mcma.vercel.app/media/mcmaLogo.png" alt="MCMA Logo" style="max-width:140px; height:auto;" />
+    <img src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png" alt="MCMA Logo" style="max-width:140px; height:auto;" />
   </div>
   <h2 style="margin-bottom:12px;">Thank you for signing up!</h2>
   <p><strong>Event:</strong> ${eventName}</p>
