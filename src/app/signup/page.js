@@ -69,7 +69,15 @@ export default function SignupPage() {
 
   return (
     <div style={containerStyle}>
-      <h2 style={titleStyle}>Volunteer Sign-Up</h2>
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+  <img
+    src="/media/mcmaLogo.png"
+    alt="MCMA Kitchen Logo"
+    style={{ maxWidth: 120, marginBottom: 12 }}
+  />
+  <h2 style={titleStyle}>MCMA Kitchen Volunteer Signup</h2>
+</div>
+
 
       {submittedData ? (
         <div style={confirmationBox}>
