@@ -22,7 +22,6 @@ export default function SignupPage() {
       })
       .catch(() => setEvents([]));
 
-    // Load reCAPTCHA v3 script
     const script = document.createElement('script');
     script.src = `https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`;
     script.async = true;
@@ -97,80 +96,98 @@ export default function SignupPage() {
       </div>
 
       {submittedData ? (
-        <div style={confirmationBox}>
-          <h3 style={{ marginBottom: 12 }}>✅ You're signed up!</h3>
-          <p><strong>Event:</strong> {submittedData.eventName}</p>
-          <p><strong>Date:</strong> {submittedData.formattedEventDate}</p>
-          <p><strong>Name:</strong> {submittedData.name}</p>
-          <p><strong>Phone:</strong> {submittedData.formattedPhone}</p>
-          <p><strong>Email:</strong> {submittedData.email}</p>
-          <p style={{ marginTop: 20 }}>You’ll receive an email confirmation shortly.</p>
-        </div>
+        <>
+          <div style={confirmationBox}>
+            <h3 style={{ marginBottom: 12 }}>✅ You're signed up!</h3>
+            <p><strong>Event:</strong> {submittedData.eventName}</p>
+            <p><strong>Date:</strong> {submittedData.formattedEventDate}</p>
+            <p><strong>Name:</strong> {submittedData.name}</p>
+            <p><strong>Phone:</strong> {submittedData.formattedPhone}</p>
+            <p><strong>Email:</strong> {submittedData.email}</p>
+            <p style={{ marginTop: 20 }}>You’ll receive an email confirmation shortly.</p>
+          </div>
+          <p style={disclaimerStyle}>
+            We respect your privacy. Your information is used only for coordinating volunteers. It will never be sold or shared.
+          </p>
+        </>
       ) : (
-        <form onSubmit={handleSubmit} style={formStyle}>
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Event</label>
-            <select
-              required
-              value={eventDate && eventName ? `${eventDate}---${eventName}` : ''}
-              onChange={e => {
-                const [selectedDate, ...nameParts] = e.target.value.split('---');
-                const selectedName = nameParts.join('---');
-                setEventDate(selectedDate);
-                setEventName(selectedName);
-              }}
-              style={inputStyle}
-            >
-              <option value="">-- Select an event --</option>
-              {events.map(({ label, name, date }) => (
-                <option key={label} value={`${date}---${name}`}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
+        <>
+          <form onSubmit={handleSubmit} style={formStyle}>
+            <div style={fieldStyle}>
+              <label htmlFor="event" style={labelStyle}>Event</label>
+              <select
+                id="event"
+                name="event"
+                required
+                value={eventDate && eventName ? `${eventDate}---${eventName}` : ''}
+                onChange={e => {
+                  const [selectedDate, ...nameParts] = e.target.value.split('---');
+                  const selectedName = nameParts.join('---');
+                  setEventDate(selectedDate);
+                  setEventName(selectedName);
+                }}
+                style={inputStyle}
+              >
+                <option value="">-- Select an event --</option>
+                {events.map(({ label, name, date }) => (
+                  <option key={label} value={`${date}---${name}`}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              style={inputStyle}
-              required
-            />
-          </div>
+            <div style={fieldStyle}>
+              <label htmlFor="name" style={labelStyle}>Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                style={inputStyle}
+                required
+              />
+            </div>
 
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Phone</label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
-              onBlur={e => {
-                const formatted = formatPhone(e.target.value);
-                if (formatted) setPhone(formatted);
-                else setStatus('❌ Invalid phone number (must be 10 digits)');
-              }}
-              style={inputStyle}
-              required
-            />
-          </div>
+            <div style={fieldStyle}>
+              <label htmlFor="phone" style={labelStyle}>Phone</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                onBlur={e => {
+                  const formatted = formatPhone(e.target.value);
+                  if (formatted) setPhone(formatted);
+                  else setStatus('❌ Invalid phone number (must be 10 digits)');
+                }}
+                style={inputStyle}
+                required
+              />
+            </div>
 
-          <div style={fieldStyle}>
-            <label style={labelStyle}>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              style={inputStyle}
-              required
-            />
-          </div>
+            <div style={fieldStyle}>
+              <label htmlFor="email" style={labelStyle}>Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                style={inputStyle}
+                required
+              />
+            </div>
 
-          <button type="submit" style={buttonStyle}>Submit</button>
-          {status && <p style={{ marginTop: 20, fontSize: '0.95em' }}>{status}</p>}
-        </form>
+            <button type="submit" style={buttonStyle}>Submit</button>
+            {status && <p style={{ marginTop: 20, fontSize: '0.95em' }}>{status}</p>}
+          </form>
+          <p style={disclaimerStyle}>
+            We respect your privacy. Your information is used only for coordinating volunteers. It will never be sold or shared.
+          </p>
+        </>
       )}
     </div>
   );
@@ -242,4 +259,12 @@ const confirmationBox = {
   boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
   fontSize: '1em',
   lineHeight: 1.6,
+};
+
+const disclaimerStyle = {
+  fontSize: '0.85em',
+  color: '#666',
+  marginTop: 32,
+  textAlign: 'center',
+  lineHeight: 1.5,
 };
