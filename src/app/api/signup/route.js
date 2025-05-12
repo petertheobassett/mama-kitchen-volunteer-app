@@ -56,6 +56,8 @@ function getGoogleCalendarURL({ eventName, eventDate, name }) {
 }
 
 export async function POST(req) {
+  const timestamp = new Date().toISOString();
+
   try {
     const { eventName, eventDate, name, phone, email, token } = await req.json();
 
@@ -63,7 +65,7 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: 'Missing fields' }), { status: 400 });
     }
 
-    // ✅ Verify reCAPTCHA v3 token
+    // ✅ Verify reCAPTCHA
     const captchaRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -74,7 +76,17 @@ export async function POST(req) {
     });
 
     const captchaResult = await captchaRes.json();
+
     if (!captchaResult.success || captchaResult.score < 0.5) {
+      console.warn('⚠️ CAPTCHA verification failed', {
+        timestamp,
+        name,
+        email,
+        score: captchaResult.score,
+        action: captchaResult.action,
+        errorCodes: captchaResult['error-codes'],
+      });
+
       return new Response(JSON.stringify({ error: 'Failed CAPTCHA verification' }), { status: 403 });
     }
 
@@ -206,7 +218,17 @@ Email: ${email}
     }), { status: 200 });
 
   } catch (err) {
-    console.error('❌ Signup form error:', err);
+    console.error('❌ Signup Error:', {
+      message: err.message,
+      stack: err.stack,
+      timestamp,
+      context: {
+        name: req?.body?.name,
+        email: req?.body?.email,
+        eventName: req?.body?.eventName,
+      },
+    });
+
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 }
