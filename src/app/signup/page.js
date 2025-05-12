@@ -75,7 +75,7 @@ export default function SignupPage() {
     alt="MCMA Kitchen Logo"
     style={{ maxWidth: 120, marginBottom: 12 }}
   />
-  <h2 style={titleStyle}>MCMA Kitchen Volunteer Signup</h2>
+  <h2 style={titleStyle}>Kitchen Volunteer Signup</h2>
 </div>
 
 
