@@ -21,6 +21,12 @@ export default function SignupPage() {
         setEvents(future);
       })
       .catch(() => setEvents([]));
+
+    // Load reCAPTCHA v3 script
+    const script = document.createElement('script');
+    script.src = `https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`;
+    script.async = true;
+    document.body.appendChild(script);
   }, []);
 
   function formatPhone(input) {
@@ -41,43 +47,54 @@ export default function SignupPage() {
 
     setStatus('Submitting...');
 
-    const res = await fetch('/api/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        eventName,
-        eventDate,
-        name,
-        phone: formattedPhone,
-        email,
-      }),
-    });
+    if (!window.grecaptcha) {
+      setStatus('❌ CAPTCHA failed to load. Please try again.');
+      return;
+    }
 
-    const result = await res.json();
-    if (res.ok) {
-      setStatus('✅ Signed up successfully!');
-      setSubmittedData(result.submitted);
-      setEventName('');
-      setEventDate('');
-      setName('');
-      setPhone('');
-      setEmail('');
-    } else {
-      setStatus(`❌ ${result.error}`);
+    try {
+      const token = await window.grecaptcha.execute(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY, { action: 'submit' });
+
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventName,
+          eventDate,
+          name,
+          phone: formattedPhone,
+          email,
+          token,
+        }),
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        setStatus('✅ Signed up successfully!');
+        setSubmittedData(result.submitted);
+        setEventName('');
+        setEventDate('');
+        setName('');
+        setPhone('');
+        setEmail('');
+      } else {
+        setStatus(`❌ ${result.error}`);
+      }
+    } catch (err) {
+      setStatus('❌ Something went wrong. Please try again.');
     }
   }
 
   return (
     <div style={containerStyle}>
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
-  <img
-    src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png"
-    alt="MCMA Kitchen Logo"
-    style={{ maxWidth: 120, marginBottom: 12 }}
-  />
-  <h2 style={titleStyle}>Kitchen Volunteer Signup</h2>
-</div>
-
+        <img
+          src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png"
+          alt="MCMA Kitchen Logo"
+          style={{ maxWidth: 120, marginBottom: 12 }}
+        />
+        <h2 style={titleStyle}>Kitchen Volunteer Signup</h2>
+      </div>
 
       {submittedData ? (
         <div style={confirmationBox}>
@@ -159,7 +176,7 @@ export default function SignupPage() {
   );
 }
 
-// Apple-inspired styles
+// Styles
 const containerStyle = {
   maxWidth: 540,
   margin: '0 auto',

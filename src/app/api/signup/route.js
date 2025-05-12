@@ -10,8 +10,8 @@ function formatPhone(phone) {
 function generateICS({ eventName, formattedEventDate, name, email }) {
   const now = new Date();
   const eventDate = new Date(formattedEventDate);
-  eventDate.setHours(16, 30); // Default start time: 4:30 PM
-  const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000); // +2 hours
+  eventDate.setHours(16, 30);
+  const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000);
 
   const format = (d) => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 
@@ -57,10 +57,25 @@ function getGoogleCalendarURL({ eventName, eventDate, name }) {
 
 export async function POST(req) {
   try {
-    const { eventName, eventDate, name, phone, email } = await req.json();
+    const { eventName, eventDate, name, phone, email, token } = await req.json();
 
-    if (!eventName || !eventDate || !name || !phone || !email) {
+    if (!eventName || !eventDate || !name || !phone || !email || !token) {
       return new Response(JSON.stringify({ error: 'Missing fields' }), { status: 400 });
+    }
+
+    // ✅ Verify reCAPTCHA v3 token
+    const captchaRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        secret: process.env.RECAPTCHA_SECRET_KEY,
+        response: token,
+      }),
+    });
+
+    const captchaResult = await captchaRes.json();
+    if (!captchaResult.success || captchaResult.score < 0.5) {
+      return new Response(JSON.stringify({ error: 'Failed CAPTCHA verification' }), { status: 403 });
     }
 
     const formattedPhone = formatPhone(phone);
@@ -77,17 +92,18 @@ export async function POST(req) {
 
     const now = new Date();
     const formattedTimestamp = now.toLocaleString('en-US', {
-        timeZone: 'America/Los_Angeles',
-        weekday: 'long',
-        month: '2-digit',
-        day: '2-digit',
-        year: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      });      
+      timeZone: 'America/Los_Angeles',
+      weekday: 'long',
+      month: '2-digit',
+      day: '2-digit',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
 
     const formattedEventDate = new Date(eventDate).toLocaleDateString('en-US', {
+      timeZone: 'America/Los_Angeles',
       weekday: 'long',
       month: '2-digit',
       day: '2-digit',
@@ -157,7 +173,6 @@ Phone: ${formattedPhone}
 Email: ${email}
 `;
 
-    // ✅ Email to volunteer
     await resend.emails.send({
       from,
       to: email,
@@ -176,7 +191,6 @@ Email: ${email}
       ],
     });
 
-    // ✅ Email to admin
     await resend.emails.send({
       from,
       to: admin,
