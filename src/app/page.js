@@ -53,18 +53,25 @@ export default function Home() {
   const pastEvents = [];
   const futureEvents = [];
 
-  events.forEach((row, rowIndex) => {
-    const rawDate = row[0];
-    const parsedDate = parseGoogleDate(rawDate);
-    if (parsedDate) {
-      const entry = { row, rowIndex, parsedDate };
-      if (parsedDate < today) {
-        pastEvents.push(entry);
+  if (Array.isArray(events)) {
+    events.forEach((row, rowIndex) => {
+      const parsedDate = parseGoogleDate(row[0]);
+      if (!parsedDate) return;
+
+      const eventObj = { row, rowIndex, parsedDate };
+      if (parsedDate >= today) {
+        futureEvents.push(eventObj);
       } else {
-        futureEvents.push(entry);
+        pastEvents.push(eventObj);
       }
-    }
-  });
+    });
+
+    // Optional: Sort by date
+    futureEvents.sort((a, b) => a.parsedDate - b.parsedDate);
+    pastEvents.sort((a, b) => b.parsedDate - a.parsedDate);
+  } else {
+    console.error('Events is not an array:', events);
+  }
 
   function renderEventGroup(eventsList, title, color) {
     return (

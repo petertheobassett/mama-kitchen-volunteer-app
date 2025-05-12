@@ -1,0 +1,3 @@
+{
+  "/api/get-signup-events/route": "app/api/get-signup-events/route.js"
+}
