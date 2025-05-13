@@ -98,7 +98,7 @@ function Home() {
                 }, this),
                 eventsList.map(({ row, rowIndex, parsedDate })=>{
                     const formattedDate = parsedDate.toDateString();
-                    const [_, eventName, expected, lead, leadPhone, vol1, phone1, vol2, phone2, vol3, phone3, vol4, phone4, vol5, phone5, att1, att2, att3, att4, att5] = row;
+                    const [_, eventName = '', expected = '', lead = '', leadPhone = '', vol1 = '', phone1 = '', vol2 = '', phone2 = '', vol3 = '', phone3 = '', vol4 = '', phone4 = '', vol5 = '', phone5 = '', vol6 = '', phone6 = '', att1 = '', att2 = '', att3 = '', att4 = '', att5 = '', att6 = ''] = row;
                     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "event-card",
                         style: eventCardStyle,
@@ -107,14 +107,22 @@ function Home() {
                                 style: {
                                     fontWeight: 600,
                                     marginBottom: '8px',
-                                    fontSize: '1.05em'
+                                    fontSize: '1.05em',
+                                    textAlign: 'center'
                                 },
                                 children: [
                                     eventName,
-                                    " ",
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
+                                        fileName: "[project]/src/app/page.js",
+                                        lineNumber: 93,
+                                        columnNumber: 28
+                                    }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         style: {
-                                            fontWeight: 400
+                                            fontWeight: 400,
+                                            display: 'inline-block',
+                                            marginTop: '4px',
+                                            marginBottom: '4px'
                                         },
                                         children: [
                                             "(",
@@ -123,29 +131,30 @@ function Home() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/page.js",
-                                        lineNumber: 84,
-                                        columnNumber: 29
+                                        lineNumber: 94,
+                                        columnNumber: 17
+                                    }, this),
+                                    expected && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        style: {
+                                            marginTop: '6px',
+                                            marginBottom: '26px',
+                                            fontSize: '0.95em',
+                                            color: 'inherit'
+                                        },
+                                        children: [
+                                            "Expected attendees: ",
+                                            expected
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/app/page.js",
+                                        lineNumber: 103,
+                                        columnNumber: 19
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.js",
-                                lineNumber: 83,
+                                lineNumber: 87,
                                 columnNumber: 15
-                            }, this),
-                            expected && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                style: {
-                                    marginBottom: '12px',
-                                    fontSize: '0.95em',
-                                    color: 'inherit'
-                                },
-                                children: [
-                                    "Expected attendees: ",
-                                    expected
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/page.js",
-                                lineNumber: 86,
-                                columnNumber: 28
                             }, this),
                             [
                                 [
@@ -172,6 +181,11 @@ function Home() {
                                     vol5,
                                     phone5,
                                     att5
+                                ],
+                                [
+                                    vol6,
+                                    phone6,
+                                    att6
                                 ]
                             ].map(([vol, phone, att], i)=>vol ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     style: {
@@ -189,7 +203,7 @@ function Home() {
                                                     onChange: (e)=>toggleAttendance(rowIndex + 2, i + 1, e.target.checked)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.js",
-                                                    lineNumber: 98,
+                                                    lineNumber: 125,
                                                     columnNumber: 23
                                                 }, this),
                                                 " ",
@@ -197,7 +211,7 @@ function Home() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.js",
-                                            lineNumber: 97,
+                                            lineNumber: 124,
                                             columnNumber: 21
                                         }, this),
                                         phone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -206,19 +220,19 @@ function Home() {
                                             children: phone
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.js",
-                                            lineNumber: 105,
+                                            lineNumber: 132,
                                             columnNumber: 23
                                         }, this)
                                     ]
                                 }, i, true, {
                                     fileName: "[project]/src/app/page.js",
-                                    lineNumber: 96,
+                                    lineNumber: 123,
                                     columnNumber: 19
                                 }, this) : null)
                         ]
                     }, rowIndex, true, {
                         fileName: "[project]/src/app/page.js",
-                        lineNumber: 82,
+                        lineNumber: 86,
                         columnNumber: 13
                     }, this);
                 })
@@ -246,7 +260,7 @@ function Home() {
                         className: "jsx-2c5bbce559d03933"
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.js",
-                        lineNumber: 120,
+                        lineNumber: 147,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -255,13 +269,13 @@ function Home() {
                         children: "Volunteer Dashboard"
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.js",
-                        lineNumber: 125,
+                        lineNumber: 152,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/page.js",
-                lineNumber: 119,
+                lineNumber: 146,
                 columnNumber: 7
             }, this),
             renderEventGroup(futureEvents, '🔵 Upcoming Events', 'navy'),
@@ -273,11 +287,10 @@ function Home() {
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/page.js",
-        lineNumber: 118,
+        lineNumber: 145,
         columnNumber: 5
     }, this);
 }
-// Shared styles
 const pageWrapper = {
     maxWidth: 720,
     margin: '0 auto',
