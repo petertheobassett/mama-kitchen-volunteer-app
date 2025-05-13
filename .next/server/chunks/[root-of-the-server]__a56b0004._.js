@@ -395,12 +395,15 @@ async function POST(req) {
             eventDate,
             name
         });
-        const htmlBody = `
+        const volunteerHeading = "Thank you for signing up!";
+        const adminHeading = "Someone just signed up to help.";
+        function generateHtmlBody(heading) {
+            return `
 <div style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#fff; padding:24px; border-radius:12px; border:1px solid #ddd; max-width:480px; margin:0 auto; font-size:16px; line-height:1.6;">
   <div style="text-align:center; margin-bottom:24px;">
     <img src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png" alt="MCMA Logo" style="max-width:140px; height:auto;" />
   </div>
-  <h2 style="margin-bottom:12px;">Thank you for signing up!</h2>
+  <h2 style="margin-bottom:12px;">${heading}</h2>
   <p><strong>Event:</strong> ${eventName}</p>
   <p><strong>Date:</strong> ${formattedEventDate}</p>
   <p><strong>Name:</strong> ${name}</p>
@@ -419,7 +422,8 @@ async function POST(req) {
     </a>
   </div>
 </div>
-`;
+      `.trim();
+        }
         const plainText = `
 Thanks for signing up!
 
@@ -429,11 +433,12 @@ Name: ${name}
 Phone: ${formattedPhone}
 Email: ${email}
 `;
+        // 📧 Volunteer email
         await resend.emails.send({
             from,
             to: email,
             subject: `MCMA Kitchen – Thanks for signing up to help at the ${eventName} ${formattedEventDate}`,
-            html: htmlBody,
+            html: generateHtmlBody(volunteerHeading),
             text: plainText,
             reply_to: replyTo,
             attachments: [
@@ -446,11 +451,14 @@ Email: ${email}
                 }
             ]
         });
+        // 🛠 Confirm admin heading used
+        console.log('🛠 Sending admin email with heading:', adminHeading);
+        // 📧 Admin email
         await resend.emails.send({
             from,
             to: admin,
             subject: `New MCMA Volunteer Sign-Up: ${name} for ${eventName}`,
-            html: htmlBody,
+            html: generateHtmlBody(adminHeading),
             text: plainText,
             reply_to: replyTo
         });

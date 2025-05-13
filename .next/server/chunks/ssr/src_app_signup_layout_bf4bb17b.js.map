@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///Users/peterbassett/Documents/Projects/mcma-kitchen-volunteers/src/app/signup/layout.js"],"sourcesContent":["export const metadata = {\n    title: \"Volunteer Signup – MCMA Kitchen\",\n    description: \"Sign up to help prepare and serve meals with MCMA Kitchen.\",\n  };\n  \n  export default function SignupLayout({ children }) {\n    return <>{children}</>;\n  }  "],"names":[],"mappings":";;;;;;AAAO,MAAM,WAAW;IACpB,OAAO;IACP,aAAa;AACf;AAEe,SAAS,aAAa,EAAE,QAAQ,EAAE;IAC/C,qBAAO;kBAAG;;AACZ","debugId":null}}]
+}
