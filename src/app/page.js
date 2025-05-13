@@ -74,16 +74,42 @@ export default function Home() {
         <h3 style={{ color, marginTop: '40px', fontSize: '1.25em' }}>{title}</h3>
         {eventsList.map(({ row, rowIndex, parsedDate }) => {
           const formattedDate = parsedDate.toDateString();
-          const [_, eventName, expected, lead, leadPhone,
-            vol1, phone1, vol2, phone2, vol3, phone3, vol4, phone4, vol5, phone5,
-            att1, att2, att3, att4, att5] = row;
+          const [
+            _, eventName = '', expected = '', lead = '', leadPhone = '',
+            vol1 = '', phone1 = '', vol2 = '', phone2 = '',
+            vol3 = '', phone3 = '', vol4 = '', phone4 = '',
+            vol5 = '', phone5 = '', vol6 = '', phone6 = '',
+            att1 = '', att2 = '', att3 = '', att4 = '', att5 = '', att6 = ''
+          ] = row;
 
           return (
             <div key={rowIndex} className="event-card" style={eventCardStyle}>
-              <div style={{ fontWeight: 600, marginBottom: '8px', fontSize: '1.05em' }}>
-                {eventName} <span style={{ fontWeight: 400 }}>({formattedDate})</span>
+              <div style={{
+                fontWeight: 600,
+                marginBottom: '8px',
+                fontSize: '1.05em',
+                textAlign: 'center'
+              }}>
+                {eventName}<br />
+                <span style={{
+                  fontWeight: 400,
+                  display: 'inline-block',
+                  marginTop: '4px',
+                  marginBottom: '4px'
+                }}>
+                  ({formattedDate})
+                </span>
+                {expected && (
+                  <div style={{
+                    marginTop: '6px',
+                    marginBottom: '26px',
+                    fontSize: '0.95em',
+                    color: 'inherit'
+                  }}>
+                    Expected attendees: {expected}
+                  </div>
+                )}
               </div>
-              {expected && <div style={{ marginBottom: '12px', fontSize: '0.95em', color: 'inherit' }}>Expected attendees: {expected}</div>}
 
               {[
                 [vol1, phone1, att1],
@@ -91,6 +117,7 @@ export default function Home() {
                 [vol3, phone3, att3],
                 [vol4, phone4, att4],
                 [vol5, phone5, att5],
+                [vol6, phone6, att6],
               ].map(([vol, phone, att], i) => (
                 vol ? (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
@@ -167,7 +194,6 @@ export default function Home() {
   );
 }
 
-// Shared styles
 const pageWrapper = {
   maxWidth: 720,
   margin: '0 auto',

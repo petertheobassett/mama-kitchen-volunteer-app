@@ -12,7 +12,7 @@ export async function GET() {
     const sheets = google.sheets({ version: 'v4', auth });
 
     const sheetId = process.env.GOOGLE_SHEET_ID;
-    const range = '2025 Schedule of Events!A2:T1000';
+    const range = '2025 Schedule of Events!A2:AH1000';
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
