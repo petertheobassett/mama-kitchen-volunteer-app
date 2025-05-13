@@ -1,5 +1,10 @@
 'use client';
 
+export const metadata = {
+  title: 'MCMA Kitchen Volunteer Dashboard',
+  description: 'View and manage upcoming and past volunteer events for MCMA Kitchen.',
+};
+
 import { useEffect, useState } from 'react';
 
 export default function Home() {
