@@ -14,12 +14,10 @@ export default function Home() {
 
   function parseGoogleDate(date) {
     if (typeof date === 'number') {
-      // Google Sheets serial number (days since 1899-12-30)
       const base = new Date(Date.UTC(1899, 11, 30));
       return new Date(base.getTime() + date * 86400000);
     } else if (typeof date === 'string') {
       const trimmed = date.trim();
-      // Attempt to convert "Sat, 05-11-25" to Date
       const parts = trimmed.split(', ')[1]?.split('-');
       if (parts?.length === 3) {
         const month = parseInt(parts[0], 10) - 1;
@@ -66,17 +64,14 @@ export default function Home() {
       }
     });
 
-    // Optional: Sort by date
     futureEvents.sort((a, b) => a.parsedDate - b.parsedDate);
     pastEvents.sort((a, b) => b.parsedDate - a.parsedDate);
-  } else {
-    console.error('Events is not an array:', events);
   }
 
   function renderEventGroup(eventsList, title, color) {
     return (
       <>
-        <h3 style={{ color, marginTop: '32px' }}>{title}</h3>
+        <h3 style={{ color, marginTop: '40px', fontSize: '1.25em' }}>{title}</h3>
         {eventsList.map(({ row, rowIndex, parsedDate }) => {
           const formattedDate = parsedDate.toDateString();
           const [_, eventName, expected, lead, leadPhone,
@@ -84,11 +79,11 @@ export default function Home() {
             att1, att2, att3, att4, att5] = row;
 
           return (
-            <div key={rowIndex} style={{ background: 'white', padding: '16px', marginBottom: '24px', borderRadius: '10px' }}>
-              <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>
-                {eventName} ({formattedDate})
+            <div key={rowIndex} className="event-card" style={eventCardStyle}>
+              <div style={{ fontWeight: 600, marginBottom: '8px', fontSize: '1.05em' }}>
+                {eventName} <span style={{ fontWeight: 400 }}>({formattedDate})</span>
               </div>
-              {expected && <div style={{ marginBottom: '8px', color: '#777' }}>Expected attendees: {expected}</div>}
+              {expected && <div style={{ marginBottom: '12px', fontSize: '0.95em', color: 'inherit' }}>Expected attendees: {expected}</div>}
 
               {[
                 [vol1, phone1, att1],
@@ -120,21 +115,87 @@ export default function Home() {
   }
 
   return (
-    <div style={{ padding: '16px', fontFamily: 'sans-serif', background: '#f2f2f2' }}>
-      <h2 style={{ textAlign: 'center', padding: '12px 0' }}>MCMA Kitchen Volunteers</h2>
+    <div style={pageWrapper}>
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <img
+          src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png"
+          alt="MCMA Kitchen Logo"
+          style={{ maxWidth: 120, marginBottom: 12 }}
+        />
+        <h2 style={titleStyle}>Volunteer Dashboard</h2>
+      </div>
+
       {renderEventGroup(futureEvents, '🔵 Upcoming Events', 'navy')}
       {renderEventGroup(pastEvents, '⚫ Past Events', 'black')}
+
+      <style jsx global>{`
+        body {
+          background-color: #f4f4f4;
+          color: #000;
+          transition: background-color 0.3s ease, color 0.3s ease;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .event-card {
+          background-color: #ffffff;
+          border: 1px solid #e5e5e5;
+          border-radius: 16px;
+          padding: 24px;
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+          color: #000000;
+        }
+
+        @media (prefers-color-scheme: dark) {
+          body {
+            background-color: #121212;
+            color: #ffffff;
+          }
+
+          .event-card {
+            background-color: #1e1e1e;
+            border-color: #333;
+            color: #ffffff;
+          }
+
+          a[href^="sms:"] {
+            background-color: #2980b9 !important;
+            color: white !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
+
+// Shared styles
+const pageWrapper = {
+  maxWidth: 720,
+  margin: '0 auto',
+  padding: 32,
+};
+
+const titleStyle = {
+  textAlign: 'center',
+  fontSize: '1.8em',
+  fontWeight: 600,
+};
+
+const eventCardStyle = {
+  padding: 24,
+  borderRadius: 16,
+  border: '1px solid',
+  boxShadow: '0 8px 30px rgba(0,0,0,0.05)',
+  marginBottom: 32,
+};
 
 const buttonStyle = {
   marginLeft: 'auto',
   background: '#0079c2',
   color: 'white',
   padding: '6px 12px',
-  borderRadius: '6px',
+  borderRadius: '8px',
   textDecoration: 'none',
   fontSize: '0.9em',
   fontFamily: 'monospace',
+  transition: 'background-color 0.2s ease',
 };

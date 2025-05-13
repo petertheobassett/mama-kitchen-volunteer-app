@@ -257,8 +257,8 @@ function formatPhone(phone) {
 function generateICS({ eventName, formattedEventDate, name, email }) {
     const now = new Date();
     const eventDate = new Date(formattedEventDate);
-    eventDate.setHours(16, 30); // Default start time: 4:30 PM
-    const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000); // +2 hours
+    eventDate.setHours(16, 30);
+    const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000);
     const format = (d)=>d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     return `
 BEGIN:VCALENDAR
@@ -297,13 +297,41 @@ function getGoogleCalendarURL({ eventName, eventDate, name }) {
     return `https://www.google.com/calendar/render?${params.toString()}`;
 }
 async function POST(req) {
+    const timestamp = new Date().toISOString();
     try {
-        const { eventName, eventDate, name, phone, email } = await req.json();
-        if (!eventName || !eventDate || !name || !phone || !email) {
+        const { eventName, eventDate, name, phone, email, token } = await req.json();
+        if (!eventName || !eventDate || !name || !phone || !email || !token) {
             return new Response(JSON.stringify({
                 error: 'Missing fields'
             }), {
                 status: 400
+            });
+        }
+        // ✅ Verify reCAPTCHA
+        const captchaRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                secret: process.env.RECAPTCHA_SECRET_KEY,
+                response: token
+            })
+        });
+        const captchaResult = await captchaRes.json();
+        if (!captchaResult.success || captchaResult.score < 0.5) {
+            console.warn('⚠️ CAPTCHA verification failed', {
+                timestamp,
+                name,
+                email,
+                score: captchaResult.score,
+                action: captchaResult.action,
+                errorCodes: captchaResult['error-codes']
+            });
+            return new Response(JSON.stringify({
+                error: 'Failed CAPTCHA verification'
+            }), {
+                status: 403
             });
         }
         const formattedPhone = formatPhone(phone);
@@ -317,6 +345,7 @@ async function POST(req) {
         const sheetId = process.env.GOOGLE_SHEET_ID;
         const now = new Date();
         const formattedTimestamp = now.toLocaleString('en-US', {
+            timeZone: 'America/Los_Angeles',
             weekday: 'long',
             month: '2-digit',
             day: '2-digit',
@@ -326,6 +355,7 @@ async function POST(req) {
             hour12: true
         });
         const formattedEventDate = new Date(eventDate).toLocaleDateString('en-US', {
+            timeZone: 'America/Los_Angeles',
             weekday: 'long',
             month: '2-digit',
             day: '2-digit',
@@ -368,7 +398,7 @@ async function POST(req) {
         const htmlBody = `
 <div style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#fff; padding:24px; border-radius:12px; border:1px solid #ddd; max-width:480px; margin:0 auto; font-size:16px; line-height:1.6;">
   <div style="text-align:center; margin-bottom:24px;">
-    <img src="https://mcma.vercel.app/media/mcmaLogo.png" alt="MCMA Logo" style="max-width:140px; height:auto;" />
+    <img src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png" alt="MCMA Logo" style="max-width:140px; height:auto;" />
   </div>
   <h2 style="margin-bottom:12px;">Thank you for signing up!</h2>
   <p><strong>Event:</strong> ${eventName}</p>
@@ -399,7 +429,6 @@ Name: ${name}
 Phone: ${formattedPhone}
 Email: ${email}
 `;
-        // ✅ Email to volunteer
         await resend.emails.send({
             from,
             to: email,
@@ -417,7 +446,6 @@ Email: ${email}
                 }
             ]
         });
-        // ✅ Email to admin
         await resend.emails.send({
             from,
             to: admin,
@@ -439,7 +467,16 @@ Email: ${email}
             status: 200
         });
     } catch (err) {
-        console.error('❌ Signup form error:', err);
+        console.error('❌ Signup Error:', {
+            message: err.message,
+            stack: err.stack,
+            timestamp,
+            context: {
+                name: req?.body?.name,
+                email: req?.body?.email,
+                eventName: req?.body?.eventName
+            }
+        });
         return new Response(JSON.stringify({
             error: err.message
         }), {

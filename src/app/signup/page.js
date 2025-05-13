@@ -97,7 +97,7 @@ export default function SignupPage() {
 
       {submittedData ? (
         <>
-          <div style={confirmationBox}>
+          <div className="confirmation-box" style={confirmationBox}>
             <h3 style={{ marginBottom: 12 }}>✅ You're signed up!</h3>
             <p><strong>Event:</strong> {submittedData.eventName}</p>
             <p><strong>Date:</strong> {submittedData.formattedEventDate}</p>
@@ -189,6 +189,46 @@ export default function SignupPage() {
           </p>
         </>
       )}
+
+      <style jsx global>{`
+        body {
+          background-color: #ffffff;
+          color: #000000;
+          transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        @media (prefers-color-scheme: dark) {
+          body {
+            background-color: #121212;
+            color: #ffffff;
+          }
+
+          form {
+            background: #1e1e1e !important;
+            border-color: #333 !important;
+          }
+
+          input, select {
+            background-color: #2a2a2a !important;
+            color: #ffffff !important;
+            border-color: #444 !important;
+          }
+
+          label {
+            color: #ccc !important;
+          }
+
+          button {
+            background-color: #e0e0e0 !important;
+            color: #000 !important;
+          }
+
+          .confirmation-box {
+            background: #1f1f1f !important;
+            border-color: #333 !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
