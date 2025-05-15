@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MCMA Kitchen Volunteer App – Version 1.0
 
-## Getting Started
+A polished, mobile-friendly volunteer scheduling and attendance app built using **Next.js**, **Tailwind CSS**, and Google Sheets as the backend.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✅ Version 1.0 – Feature Summary
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🛠️ Initial Setup
+- Built using **Next.js 15.3.2**
+- Styled with **Tailwind CSS**
+- Hosted on **Vercel**
+- Backend data powered by **Google Sheets API** via service account
+- Event data pulled and displayed dynamically
+- Volunteers tracked per event
+- Events sorted into **Upcoming** and **Past** using date parsing
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🧑‍🍳 Signup & Email Confirmation (5/12/2025)
+- Volunteers can sign up for any event by selecting:
+  - Event
+  - Name, phone, and email
+- Post-submission:
+  - Confirmation message appears inline
+  - Info cleared and displayed to user
+  - Confirmation emails sent via **Resend API**
+    - Volunteer receives event details + calendar invite link
+    - Admin (Peter) receives a copy
+  - Emails include:
+    - MCMA logo
+    - Reply-to header
+    - Clean design
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+### 🔐 Security & Trust
+- **hCaptcha** integration protects form from spam
+- **Privacy and Terms disclaimer** added
+- Basic **error logging** built in for form and API
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🎨 UI / UX Upgrades (5/13/2025)
+- Lead name + SMS link added to each event card
+- Vertical spacing refined for:
+  - Lead info and volunteer list
+  - Event headers and content
+- Font and spacing adjusted for clean, Apple-style readability
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 🌙 Dark Mode Support
+- Header sections (`Upcoming Events`, `Past Events`) now visible in dark mode
+- Theming respects `prefers-color-scheme`
+- Past events no longer disappear in dark mode
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+### 🧩 Inline Feedback
+- `alert()` replaced with toast-style inline confirmations
+  - Example: `Attendance saved ✔`
+  - Auto-dismisses after 2 seconds
+
+---
+
+### ⏳ Elegant Apple-style Loader
+- Spinner shows while fetching event data
+- Smooth, minimal (CSS only)
+- Auto-hides after data loads
+
+---
+
+## 🔁 Deployment
+- All changes committed and pushed
+- Ready for deployment via **Git + Vercel**
+
+---
+
+## 🚀 Stack
+- **Frontend:** Next.js, Tailwind CSS
+- **Backend:** Google Sheets API (via service account)
+- **Email:** Resend API
+- **Security:** hCaptcha
+- **Hosting:** Vercel
+
+---
+
+## 📌 Roadmap Ideas
+- [ ] Admin filters for event management
+- [ ] Export volunteer data to CSV
+- [ ] Edit/cancel functionality for volunteers
+- [ ] Admin dashboard view
+- [ ] Multi-language support
+
+---
+
+## 👏 Built with care by Peter Bassett
