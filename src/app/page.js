@@ -21,16 +21,6 @@ export default function Home() {
       });
   }, []);
 
-  function parseGoogleDate(date) {
-    if (!date) return null;
-    if (typeof date === 'number') {
-      const base = new Date(Date.UTC(1899, 11, 30));
-      return new Date(base.getTime() + date * 86400000);
-    }
-    const parsed = new Date(date);
-    return isNaN(parsed) ? null : parsed;
-  }
-
   function toggleAttendance(row, index, checked) {
     fetch('/api/update-attendance', {
       method: 'POST',
@@ -59,32 +49,34 @@ export default function Home() {
       });
   }
 
-  // LOCAL midnight (PST) for clean date filtering
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // local midnight
 
   const pastEvents = [];
   const futureEvents = [];
 
   if (Array.isArray(events)) {
-    events.forEach((row, rowIndex) => {
-      const parsedDate = parseGoogleDate(row[0]);
-      if (!parsedDate) return;
-
-      const eventObj = { row, rowIndex, parsedDate };
+    events.forEach((eventObj, index) => {
+      const parsedDate = new Date(eventObj.parsedDate);
+      if (isNaN(parsedDate)) return;
 
       const eventDay = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
+      const eventData = {
+        row: eventObj.raw,
+        rowIndex: index,
+        parsedDate,
+      };
+
       if (eventDay >= today) {
-        futureEvents.push(eventObj);
+        futureEvents.push(eventData);
       } else {
-        pastEvents.push(eventObj);
+        pastEvents.push(eventData);
       }
     });
 
     futureEvents.sort((a, b) => a.parsedDate - b.parsedDate);
     pastEvents.sort((a, b) => b.parsedDate - a.parsedDate);
 
-    // Optional debug logging
     console.log('🔵 Future Events:', futureEvents.map(e => e.row[1]));
     console.log('⚫ Past Events:', pastEvents.map(e => e.row[1]));
   }
@@ -280,62 +272,11 @@ export default function Home() {
   );
 }
 
-// Styles
-const pageWrapper = {
-  maxWidth: 720,
-  margin: '0 auto',
-  padding: 32,
-};
-
-const titleStyle = {
-  textAlign: 'center',
-  fontSize: '1.8em',
-  fontWeight: 600,
-};
-
-const eventCardStyle = {
-  padding: 24,
-  borderRadius: 16,
-  border: '1px solid',
-  boxShadow: '0 8px 30px rgba(0,0,0,0.05)',
-  marginBottom: 32,
-};
-
-const buttonStyle = {
-  marginLeft: 'auto',
-  background: '#0079c2',
-  color: 'white',
-  padding: '6px 12px',
-  borderRadius: '8px',
-  textDecoration: 'none',
-  fontSize: '0.9em',
-  fontFamily: 'monospace',
-  transition: 'background-color 0.2s ease',
-};
-
-const inlineToastStyle = {
-  marginTop: '16px',
-  backgroundColor: '#ff0003',
-  color: '#fff',
-  padding: '8px 16px',
-  borderRadius: '6px',
-  fontSize: '0.95em',
-  textAlign: 'center',
-};
-
-const loaderWrapper = {
-  height: '100vh',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: '#f4f4f4',
-};
-
-const spinnerStyle = {
-  width: '36px',
-  height: '36px',
-  border: '3px solid rgba(0, 0, 0, 0.1)',
-  borderTop: '3px solid rgba(0, 0, 0, 0.7)',
-  borderRadius: '50%',
-  animation: 'spin 1s linear infinite',
-};
+// Styles (unchanged)
+const pageWrapper = { maxWidth: 720, margin: '0 auto', padding: 32 };
+const titleStyle = { textAlign: 'center', fontSize: '1.8em', fontWeight: 600 };
+const eventCardStyle = { padding: 24, borderRadius: 16, border: '1px solid', boxShadow: '0 8px 30px rgba(0,0,0,0.05)', marginBottom: 32 };
+const buttonStyle = { marginLeft: 'auto', background: '#0079c2', color: 'white', padding: '6px 12px', borderRadius: '8px', textDecoration: 'none', fontSize: '0.9em', fontFamily: 'monospace', transition: 'background-color 0.2s ease' };
+const inlineToastStyle = { marginTop: '16px', backgroundColor: '#ff0003', color: '#fff', padding: '8px 16px', borderRadius: '6px', fontSize: '0.95em', textAlign: 'center' };
+const loaderWrapper = { height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f4f4f4' };
+const spinnerStyle = { width: '36px', height: '36px', border: '3px solid rgba(0, 0, 0, 0.1)', borderTop: '3px solid rgba(0, 0, 0, 0.7)', borderRadius: '50%', animation: 'spin 1s linear infinite' };
