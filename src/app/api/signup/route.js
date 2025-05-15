@@ -65,7 +65,6 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: 'Missing fields' }), { status: 400 });
     }
 
-    // ✅ Verify reCAPTCHA
     const captchaRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -78,15 +77,7 @@ export async function POST(req) {
     const captchaResult = await captchaRes.json();
 
     if (!captchaResult.success || captchaResult.score < 0.5) {
-      console.warn('⚠️ CAPTCHA verification failed', {
-        timestamp,
-        name,
-        email,
-        score: captchaResult.score,
-        action: captchaResult.action,
-        errorCodes: captchaResult['error-codes'],
-      });
-
+      console.warn('⚠️ CAPTCHA verification failed', { captchaResult });
       return new Response(JSON.stringify({ error: 'Failed CAPTCHA verification' }), { status: 403 });
     }
 
@@ -125,7 +116,7 @@ export async function POST(req) {
     const newRow = [
       formattedTimestamp,
       eventName,
-      formattedEventDate,
+      eventDate, // Store raw ISO date
       name,
       formattedPhone,
       email,
@@ -142,43 +133,23 @@ export async function POST(req) {
     });
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const from = process.env.EMAIL_FROM;
-    const admin = process.env.ADMIN_EMAIL;
-    const replyTo = process.env.ADMIN_EMAIL;
-
     const calendarICS = generateICS({ eventName, formattedEventDate, name, email });
     const googleCalendarLink = getGoogleCalendarURL({ eventName, eventDate, name });
 
-    const volunteerHeading = "Thank you for signing up!";
-    const adminHeading = "Someone just signed up to help.";
-
-    function generateHtmlBody(heading) {
-      return `
-<div style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif; background:#fff; padding:24px; border-radius:12px; border:1px solid #ddd; max-width:480px; margin:0 auto; font-size:16px; line-height:1.6;">
-  <div style="text-align:center; margin-bottom:24px;">
-    <img src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png" alt="MCMA Logo" style="max-width:140px; height:auto;" />
-  </div>
-  <h2 style="margin-bottom:12px;">${heading}</h2>
-  <p><strong>Event:</strong> ${eventName}</p>
-  <p><strong>Date:</strong> ${formattedEventDate}</p>
-  <p><strong>Name:</strong> ${name}</p>
-  <p><strong>Phone:</strong> ${formattedPhone}</p>
-  <p><strong>Email:</strong> ${email}</p>
-  <div style="margin-top:30px; text-align:center;">
-    <a href="${googleCalendarLink}" target="_blank" style="text-decoration:none;">
-      <button style="background:#4285F4; color:#fff; padding:10px 18px; font-size:15px; border:none; border-radius:6px; margin-right:12px; cursor:pointer;">
-        Add to Google Calendar
-      </button>
-    </a>
-    <a href="cid:calendar" download="mcma-volunteer.ics">
-      <button style="background:#333; color:#fff; padding:10px 18px; font-size:15px; border:none; border-radius:6px; cursor:pointer;">
-        Add to Apple Calendar
-      </button>
-    </a>
-  </div>
-</div>
-      `.trim();
-    }
+    const heading = "Thank you for signing up!";
+    const bodyHTML = `
+      <div style="font-family:sans-serif; background:#fff; padding:24px; border-radius:12px; border:1px solid #ddd;">
+        <h2>${heading}</h2>
+        <p><strong>Event:</strong> ${eventName}</p>
+        <p><strong>Date:</strong> ${formattedEventDate}</p>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Phone:</strong> ${formattedPhone}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <div style="margin-top:24px;">
+          <a href="${googleCalendarLink}">Add to Google Calendar</a>
+        </div>
+      </div>
+    `;
 
     const plainText = `
 Thanks for signing up!
@@ -190,14 +161,13 @@ Phone: ${formattedPhone}
 Email: ${email}
 `;
 
-    // 📧 Volunteer email
     await resend.emails.send({
-      from,
+      from: process.env.EMAIL_FROM,
       to: email,
       subject: `MCMA Kitchen – Thanks for signing up to help at the ${eventName} ${formattedEventDate}`,
-      html: generateHtmlBody(volunteerHeading),
+      html: bodyHTML,
       text: plainText,
-      reply_to: replyTo,
+      reply_to: process.env.ADMIN_EMAIL,
       attachments: [
         {
           filename: 'mcma-volunteer.ics',
@@ -209,17 +179,13 @@ Email: ${email}
       ],
     });
 
-    // 🛠 Confirm admin heading used
-    console.log('🛠 Sending admin email with heading:', adminHeading);
-
-    // 📧 Admin email
     await resend.emails.send({
-      from,
-      to: admin,
+      from: process.env.EMAIL_FROM,
+      to: process.env.ADMIN_EMAIL,
       subject: `New MCMA Volunteer Sign-Up: ${name} for ${eventName}`,
-      html: generateHtmlBody(adminHeading),
+      html: bodyHTML,
       text: plainText,
-      reply_to: replyTo,
+      reply_to: process.env.ADMIN_EMAIL,
     });
 
     return new Response(JSON.stringify({
@@ -228,17 +194,7 @@ Email: ${email}
     }), { status: 200 });
 
   } catch (err) {
-    console.error('❌ Signup Error:', {
-      message: err.message,
-      stack: err.stack,
-      timestamp,
-      context: {
-        name: req?.body?.name,
-        email: req?.body?.email,
-        eventName: req?.body?.eventName,
-      },
-    });
-
+    console.error('❌ Signup Error:', err);
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 }

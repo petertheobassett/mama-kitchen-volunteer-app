@@ -40,20 +40,13 @@ function Home() {
         }
     }["Home.useEffect"], []);
     function parseGoogleDate(date) {
+        if (!date) return null;
         if (typeof date === 'number') {
             const base = new Date(Date.UTC(1899, 11, 30));
             return new Date(base.getTime() + date * 86400000);
-        } else if (typeof date === 'string') {
-            const trimmed = date.trim();
-            const parts = trimmed.split(', ')[1]?.split('-');
-            if (parts?.length === 3) {
-                const month = parseInt(parts[0], 10) - 1;
-                const day = parseInt(parts[1], 10);
-                const year = 2000 + parseInt(parts[2], 10);
-                return new Date(year, month, day);
-            }
         }
-        return null;
+        const parsed = new Date(date);
+        return isNaN(parsed) ? null : parsed;
     }
     function toggleAttendance(row, index, checked) {
         fetch('/api/update-attendance', {
@@ -82,6 +75,7 @@ function Home() {
         });
     }
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // normalize to midnight
     const pastEvents = [];
     const futureEvents = [];
     if (Array.isArray(events)) {
@@ -112,7 +106,7 @@ function Home() {
                     children: title
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.js",
-                    lineNumber: 96,
+                    lineNumber: 91,
                     columnNumber: 9
                 }, this),
                 eventsList.map(({ row, rowIndex, parsedDate })=>{
@@ -137,7 +131,7 @@ function Home() {
                                     eventName,
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                         fileName: "[project]/src/app/page.js",
-                                        lineNumber: 121,
+                                        lineNumber: 116,
                                         columnNumber: 28
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -154,7 +148,7 @@ function Home() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/page.js",
-                                        lineNumber: 122,
+                                        lineNumber: 117,
                                         columnNumber: 17
                                     }, this),
                                     expected && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -169,7 +163,7 @@ function Home() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/page.js",
-                                        lineNumber: 131,
+                                        lineNumber: 126,
                                         columnNumber: 19
                                     }, this),
                                     lead && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -184,7 +178,7 @@ function Home() {
                                             lead,
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                                 fileName: "[project]/src/app/page.js",
-                                                lineNumber: 146,
+                                                lineNumber: 141,
                                                 columnNumber: 41
                                             }, this),
                                             leadPhone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -198,19 +192,19 @@ function Home() {
                                                 children: leadPhone
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/page.js",
-                                                lineNumber: 148,
+                                                lineNumber: 143,
                                                 columnNumber: 23
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/page.js",
-                                        lineNumber: 140,
+                                        lineNumber: 135,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.js",
-                                lineNumber: 115,
+                                lineNumber: 110,
                                 columnNumber: 15
                             }, this),
                             [
@@ -260,7 +254,7 @@ function Home() {
                                                     onChange: (e)=>toggleAttendance(sheetRow, ATTENDANCE_COLUMN_START + i, e.target.checked)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.js",
-                                                    lineNumber: 167,
+                                                    lineNumber: 162,
                                                     columnNumber: 23
                                                 }, this),
                                                 " ",
@@ -268,7 +262,7 @@ function Home() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.js",
-                                            lineNumber: 166,
+                                            lineNumber: 161,
                                             columnNumber: 21
                                         }, this),
                                         phone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -277,13 +271,13 @@ function Home() {
                                             children: phone
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.js",
-                                            lineNumber: 176,
+                                            lineNumber: 171,
                                             columnNumber: 23
                                         }, this)
                                     ]
                                 }, i, true, {
                                     fileName: "[project]/src/app/page.js",
-                                    lineNumber: 165,
+                                    lineNumber: 160,
                                     columnNumber: 19
                                 }, this) : null),
                             updatedRow === sheetRow && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -291,13 +285,13 @@ function Home() {
                                 children: updatedMessage
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.js",
-                                lineNumber: 183,
+                                lineNumber: 178,
                                 columnNumber: 17
                             }, this)
                         ]
                     }, rowIndex, true, {
                         fileName: "[project]/src/app/page.js",
-                        lineNumber: 110,
+                        lineNumber: 105,
                         columnNumber: 13
                     }, this);
                 })
@@ -314,7 +308,7 @@ function Home() {
                     className: "jsx-d525c98fb358669b"
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.js",
-                    lineNumber: 195,
+                    lineNumber: 190,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -324,7 +318,7 @@ function Home() {
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/page.js",
-            lineNumber: 194,
+            lineNumber: 189,
             columnNumber: 7
         }, this);
     }
@@ -349,7 +343,7 @@ function Home() {
                         className: "jsx-9786e519195cdfc1"
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.js",
-                        lineNumber: 209,
+                        lineNumber: 204,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -358,13 +352,13 @@ function Home() {
                         children: "Volunteer Dashboard"
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.js",
-                        lineNumber: 214,
+                        lineNumber: 209,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/page.js",
-                lineNumber: 208,
+                lineNumber: 203,
                 columnNumber: 7
             }, this),
             renderEventGroup(futureEvents, '🔵 Upcoming Events', 'navy'),
@@ -376,7 +370,7 @@ function Home() {
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/page.js",
-        lineNumber: 207,
+        lineNumber: 202,
         columnNumber: 5
     }, this);
 }

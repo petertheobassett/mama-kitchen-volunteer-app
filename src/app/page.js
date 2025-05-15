@@ -22,20 +22,13 @@ export default function Home() {
   }, []);
 
   function parseGoogleDate(date) {
+    if (!date) return null;
     if (typeof date === 'number') {
       const base = new Date(Date.UTC(1899, 11, 30));
       return new Date(base.getTime() + date * 86400000);
-    } else if (typeof date === 'string') {
-      const trimmed = date.trim();
-      const parts = trimmed.split(', ')[1]?.split('-');
-      if (parts?.length === 3) {
-        const month = parseInt(parts[0], 10) - 1;
-        const day = parseInt(parts[1], 10);
-        const year = 2000 + parseInt(parts[2], 10);
-        return new Date(year, month, day);
-      }
     }
-    return null;
+    const parsed = new Date(date);
+    return isNaN(parsed) ? null : parsed;
   }
 
   function toggleAttendance(row, index, checked) {
@@ -67,6 +60,8 @@ export default function Home() {
   }
 
   const today = new Date();
+  today.setHours(0, 0, 0, 0); // normalize to midnight
+
   const pastEvents = [];
   const futureEvents = [];
 

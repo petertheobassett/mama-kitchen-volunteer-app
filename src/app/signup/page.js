@@ -17,7 +17,12 @@ export default function SignupPage() {
       .then(res => res.json())
       .then(data => {
         const today = new Date();
-        const future = data.filter(event => new Date(event.date) >= today);
+        today.setHours(0, 0, 0, 0);
+        const future = data.filter(event => {
+          const eventDay = new Date(event.date);
+          eventDay.setHours(0, 0, 0, 0);
+          return eventDay >= today;
+        });
         setEvents(future);
       })
       .catch(() => setEvents([]));
@@ -115,26 +120,29 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} style={formStyle}>
             <div style={fieldStyle}>
               <label htmlFor="event" style={labelStyle}>Event</label>
-              <select
-                id="event"
-                name="event"
-                required
-                value={eventDate && eventName ? `${eventDate}---${eventName}` : ''}
-                onChange={e => {
-                  const [selectedDate, ...nameParts] = e.target.value.split('---');
-                  const selectedName = nameParts.join('---');
-                  setEventDate(selectedDate);
-                  setEventName(selectedName);
-                }}
-                style={inputStyle}
-              >
-                <option value="">-- Select an event --</option>
-                {events.map(({ label, name, date }) => (
-                  <option key={label} value={`${date}---${name}`}>
-                    {label}
-                  </option>
-                ))}
-              </select>
+              <div style={{ position: 'relative' }}>
+                <select
+                  id="event"
+                  name="event"
+                  required
+                  value={eventDate && eventName ? `${eventDate}---${eventName}` : ''}
+                  onChange={e => {
+                    const [selectedDate, ...nameParts] = e.target.value.split('---');
+                    const selectedName = nameParts.join('---');
+                    setEventDate(selectedDate);
+                    setEventName(selectedName);
+                  }}
+                  style={inputStyle}
+                >
+                  <option value="">-- Select an event --</option>
+                  {events.map(({ label, name, date }) => (
+                    <option key={label} value={`${date}---${name}`}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <span style={chevronStyle}>▼</span>
+              </div>
             </div>
 
             <div style={fieldStyle}>
@@ -275,7 +283,22 @@ const inputStyle = {
   border: '1px solid #ccc',
   borderRadius: 8,
   outline: 'none',
+  backgroundColor: '#fff',
+  color: '#000',
+  appearance: 'none',
+  WebkitAppearance: 'none',
+  MozAppearance: 'none',
   transition: 'border 0.2s ease-in-out',
+};
+
+const chevronStyle = {
+  position: 'absolute',
+  top: '50%',
+  right: 14,
+  transform: 'translateY(-50%)',
+  pointerEvents: 'none',
+  fontSize: '0.8em',
+  color: '#666',
 };
 
 const buttonStyle = {

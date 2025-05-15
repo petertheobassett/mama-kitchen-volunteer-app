@@ -18,23 +18,53 @@ export async function GET() {
     });
 
     const rows = response.data.values || [];
+    console.log('📄 Raw sheet rows:', rows);
+
+    const serialToDate = (val) => {
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const baseDate = new Date(Date.UTC(1899, 11, 30));
+      return new Date(baseDate.getTime() + val * msPerDay);
+    };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // normalize
 
     const events = rows.map(([rawDate, name]) => {
-      // Attempt to parse custom-formatted date: "Wed, 06-11-25"
-      const parts = rawDate?.trim().split(', ')[1]?.split('-');
-      if (!parts || parts.length !== 3) return null;
+      if (!rawDate || !name) {
+        console.warn('⚠️ Skipping row with missing data:', rawDate, name);
+        return null;
+      }
 
-      const month = parseInt(parts[0], 10) - 1;
-      const day = parseInt(parts[1], 10);
-      const year = 2000 + parseInt(parts[2], 10);
-      const date = new Date(year, month, day);
+      let parsed;
+      if (!isNaN(rawDate)) {
+        // Serial number format
+        parsed = serialToDate(Number(rawDate));
+      } else {
+        // ISO string format
+        parsed = new Date(rawDate.trim());
+      }
+
+      if (isNaN(parsed)) {
+        console.warn('⚠️ Invalid date format:', rawDate);
+        return null;
+      }
+
+      // Normalize for comparison
+      const parsedCopy = new Date(parsed);
+      parsedCopy.setHours(0, 0, 0, 0);
+
+      if (parsedCopy < today) {
+        return null; // Exclude past events
+      }
 
       return {
-        name,
-        date: date.toISOString(),
-        label: `${rawDate} – ${name}`,
+        name: name.trim(),
+        date: parsed.toISOString().slice(0, 10), // "yyyy-mm-dd"
+        label: `${parsed.toDateString()} – ${name.trim()}`,
       };
     }).filter(Boolean);
+
+    console.log('✅ Parsed future events:', events);
 
     return new Response(JSON.stringify(events), {
       status: 200,
