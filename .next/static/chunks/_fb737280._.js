@@ -19,14 +19,23 @@ var _s = __turbopack_context__.k.signature();
 function Home() {
     _s();
     const [events, setEvents] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
+    const [updatedRow, setUpdatedRow] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [updatedMessage, setUpdatedMessage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "Home.useEffect": ()=>{
             fetch('/api/get-events').then({
                 "Home.useEffect": (res)=>res.json()
             }["Home.useEffect"]).then({
-                "Home.useEffect": (data)=>setEvents(data || [])
+                "Home.useEffect": (data)=>{
+                    setEvents(data || []);
+                    setLoading(false);
+                }
             }["Home.useEffect"]).catch({
-                "Home.useEffect": (err)=>console.error('Fetch failed:', err)
+                "Home.useEffect": (err)=>{
+                    console.error('Fetch failed:', err);
+                    setLoading(false);
+                }
             }["Home.useEffect"]);
         }
     }["Home.useEffect"], []);
@@ -58,9 +67,19 @@ function Home() {
                 checked: checked ? '👍' : ''
             })
         }).then((res)=>res.json()).then((data)=>{
-            if (data.status === 'OK') alert('Attendance saved ✔');
-            else alert('Error saving attendance');
-        }).catch(()=>alert('Network error'));
+            if (data.status === 'OK') {
+                setUpdatedRow(row);
+                setUpdatedMessage('Attendance saved ✔');
+            } else {
+                setUpdatedRow(row);
+                setUpdatedMessage('Error saving attendance');
+            }
+            setTimeout(()=>setUpdatedRow(null), 2000);
+        }).catch(()=>{
+            setUpdatedRow(row);
+            setUpdatedMessage('Network error');
+            setTimeout(()=>setUpdatedRow(null), 2000);
+        });
     }
     const today = new Date();
     const pastEvents = [];
@@ -84,26 +103,28 @@ function Home() {
         pastEvents.sort((a, b)=>b.parsedDate - a.parsedDate);
     }
     function renderEventGroup(eventsList, title, color) {
+        const ATTENDANCE_COLUMN_START = 18;
+        const isPast = color === 'black';
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                    style: {
-                        color,
-                        marginTop: '40px',
-                        fontSize: '1.25em'
-                    },
+                    className: `section-title ${isPast ? 'past' : 'future'}`,
                     children: title
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.js",
-                    lineNumber: 74,
+                    lineNumber: 96,
                     columnNumber: 9
                 }, this),
                 eventsList.map(({ row, rowIndex, parsedDate })=>{
                     const formattedDate = parsedDate.toDateString();
                     const [_, eventName = '', expected = '', lead = '', leadPhone = '', vol1 = '', phone1 = '', vol2 = '', phone2 = '', vol3 = '', phone3 = '', vol4 = '', phone4 = '', vol5 = '', phone5 = '', vol6 = '', phone6 = '', att1 = '', att2 = '', att3 = '', att4 = '', att5 = '', att6 = ''] = row;
+                    const sheetRow = rowIndex + 2;
                     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "event-card",
-                        style: eventCardStyle,
+                        style: {
+                            ...eventCardStyle,
+                            marginTop: rowIndex === 0 ? 24 : 12
+                        },
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 style: {
@@ -116,7 +137,7 @@ function Home() {
                                     eventName,
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                         fileName: "[project]/src/app/page.js",
-                                        lineNumber: 93,
+                                        lineNumber: 121,
                                         columnNumber: 28
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -133,13 +154,12 @@ function Home() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/page.js",
-                                        lineNumber: 94,
+                                        lineNumber: 122,
                                         columnNumber: 17
                                     }, this),
                                     expected && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         style: {
                                             marginTop: '6px',
-                                            marginBottom: '26px',
                                             fontSize: '0.95em',
                                             color: 'inherit'
                                         },
@@ -149,13 +169,48 @@ function Home() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/page.js",
-                                        lineNumber: 103,
+                                        lineNumber: 131,
+                                        columnNumber: 19
+                                    }, this),
+                                    lead && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        style: {
+                                            marginTop: '10px',
+                                            marginBottom: '20px',
+                                            fontSize: '0.95em',
+                                            color: 'inherit'
+                                        },
+                                        children: [
+                                            "Kitchen lead: ",
+                                            lead,
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
+                                                fileName: "[project]/src/app/page.js",
+                                                lineNumber: 146,
+                                                columnNumber: 41
+                                            }, this),
+                                            leadPhone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                                href: `sms:${leadPhone}`,
+                                                style: {
+                                                    color: '#0079c2',
+                                                    textDecoration: 'none',
+                                                    display: 'inline-block',
+                                                    marginTop: '10px'
+                                                },
+                                                children: leadPhone
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/app/page.js",
+                                                lineNumber: 148,
+                                                columnNumber: 23
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/src/app/page.js",
+                                        lineNumber: 140,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/page.js",
-                                lineNumber: 87,
+                                lineNumber: 115,
                                 columnNumber: 15
                             }, this),
                             [
@@ -202,10 +257,10 @@ function Home() {
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                     type: "checkbox",
                                                     defaultChecked: att === '👍' || att === 'TRUE',
-                                                    onChange: (e)=>toggleAttendance(rowIndex + 2, i + 1, e.target.checked)
+                                                    onChange: (e)=>toggleAttendance(sheetRow, ATTENDANCE_COLUMN_START + i, e.target.checked)
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.js",
-                                                    lineNumber: 125,
+                                                    lineNumber: 167,
                                                     columnNumber: 23
                                                 }, this),
                                                 " ",
@@ -213,7 +268,7 @@ function Home() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.js",
-                                            lineNumber: 124,
+                                            lineNumber: 166,
                                             columnNumber: 21
                                         }, this),
                                         phone && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -222,35 +277,67 @@ function Home() {
                                             children: phone
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/page.js",
-                                            lineNumber: 132,
+                                            lineNumber: 176,
                                             columnNumber: 23
                                         }, this)
                                     ]
                                 }, i, true, {
                                     fileName: "[project]/src/app/page.js",
-                                    lineNumber: 123,
+                                    lineNumber: 165,
                                     columnNumber: 19
-                                }, this) : null)
+                                }, this) : null),
+                            updatedRow === sheetRow && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: inlineToastStyle,
+                                children: updatedMessage
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/page.js",
+                                lineNumber: 183,
+                                columnNumber: 17
+                            }, this)
                         ]
                     }, rowIndex, true, {
                         fileName: "[project]/src/app/page.js",
-                        lineNumber: 86,
+                        lineNumber: 110,
                         columnNumber: 13
                     }, this);
                 })
             ]
         }, void 0, true);
     }
+    if (loading) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            style: loaderWrapper,
+            className: "jsx-d525c98fb358669b",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: spinnerStyle,
+                    className: "jsx-d525c98fb358669b"
+                }, void 0, false, {
+                    fileName: "[project]/src/app/page.js",
+                    lineNumber: 195,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                    id: "d525c98fb358669b",
+                    children: "@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}"
+                }, void 0, false, void 0, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/app/page.js",
+            lineNumber: 194,
+            columnNumber: 7
+        }, this);
+    }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         style: pageWrapper,
-        className: "jsx-2c5bbce559d03933",
+        className: "jsx-9786e519195cdfc1",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 style: {
                     textAlign: 'center',
                     marginBottom: 32
                 },
-                className: "jsx-2c5bbce559d03933",
+                className: "jsx-9786e519195cdfc1",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
                         src: "https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png",
@@ -259,41 +346,41 @@ function Home() {
                             maxWidth: 120,
                             marginBottom: 12
                         },
-                        className: "jsx-2c5bbce559d03933"
+                        className: "jsx-9786e519195cdfc1"
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.js",
-                        lineNumber: 147,
+                        lineNumber: 209,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                         style: titleStyle,
-                        className: "jsx-2c5bbce559d03933",
+                        className: "jsx-9786e519195cdfc1",
                         children: "Volunteer Dashboard"
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.js",
-                        lineNumber: 152,
+                        lineNumber: 214,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/page.js",
-                lineNumber: 146,
+                lineNumber: 208,
                 columnNumber: 7
             }, this),
             renderEventGroup(futureEvents, '🔵 Upcoming Events', 'navy'),
             renderEventGroup(pastEvents, '⚫ Past Events', 'black'),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                id: "2c5bbce559d03933",
-                children: "body{color:#000;background-color:#f4f4f4;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;transition:background-color .3s,color .3s}.event-card{color:#000;background-color:#fff;border:1px solid #e5e5e5;border-radius:16px;padding:24px;box-shadow:0 8px 30px #0000000d}@media (prefers-color-scheme:dark){body{color:#fff;background-color:#121212}.event-card{color:#fff;background-color:#1e1e1e;border-color:#333}a[href^=sms\\:]{color:#fff!important;background-color:#2980b9!important}}"
+                id: "9786e519195cdfc1",
+                children: "body{color:#000;background-color:#f4f4f4;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;transition:background-color .3s,color .3s}.event-card{color:#000;background-color:#fff;border:1px solid #e5e5e5;border-radius:16px;padding:24px;box-shadow:0 8px 30px #0000000d}.section-title{margin-top:40px;font-size:1.25em;font-weight:600}.section-title.future{color:navy}.section-title.past{color:#000}@media (prefers-color-scheme:dark){body{color:#fff;background-color:#121212}.event-card{color:#fff;background-color:#1e1e1e;border-color:#333}.section-title.future{color:#6af}.section-title.past{color:#ccc}a[href^=sms\\:]{color:#fff!important;background-color:#2980b9!important}}"
             }, void 0, false, void 0, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/page.js",
-        lineNumber: 145,
+        lineNumber: 207,
         columnNumber: 5
     }, this);
 }
-_s(Home, "j18ueuia/psAZ/XawE3UyqzOWsE=");
+_s(Home, "OtQ6iEc0WftxMqpespXr7/4N240=");
 _c = Home;
 const pageWrapper = {
     maxWidth: 720,
@@ -322,6 +409,30 @@ const buttonStyle = {
     fontSize: '0.9em',
     fontFamily: 'monospace',
     transition: 'background-color 0.2s ease'
+};
+const inlineToastStyle = {
+    marginTop: '16px',
+    backgroundColor: '#ff0003',
+    color: '#fff',
+    padding: '8px 16px',
+    borderRadius: '6px',
+    fontSize: '0.95em',
+    textAlign: 'center'
+};
+const loaderWrapper = {
+    height: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f4f4f4'
+};
+const spinnerStyle = {
+    width: '36px',
+    height: '36px',
+    border: '3px solid rgba(0, 0, 0, 0.1)',
+    borderTop: '3px solid rgba(0, 0, 0, 0.7)',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite'
 };
 var _c;
 __turbopack_context__.k.register(_c, "Home");

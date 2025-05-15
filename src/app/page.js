@@ -4,12 +4,21 @@ import { useEffect, useState } from 'react';
 
 export default function Home() {
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [updatedRow, setUpdatedRow] = useState(null);
+  const [updatedMessage, setUpdatedMessage] = useState('');
 
   useEffect(() => {
     fetch('/api/get-events')
       .then(res => res.json())
-      .then(data => setEvents(data || []))
-      .catch(err => console.error('Fetch failed:', err));
+      .then(data => {
+        setEvents(data || []);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Fetch failed:', err);
+        setLoading(false);
+      });
   }, []);
 
   function parseGoogleDate(date) {
@@ -41,10 +50,20 @@ export default function Home() {
     })
       .then(res => res.json())
       .then(data => {
-        if (data.status === 'OK') alert('Attendance saved ✔');
-        else alert('Error saving attendance');
+        if (data.status === 'OK') {
+          setUpdatedRow(row);
+          setUpdatedMessage('Attendance saved ✔');
+        } else {
+          setUpdatedRow(row);
+          setUpdatedMessage('Error saving attendance');
+        }
+        setTimeout(() => setUpdatedRow(null), 2000);
       })
-      .catch(() => alert('Network error'));
+      .catch(() => {
+        setUpdatedRow(row);
+        setUpdatedMessage('Network error');
+        setTimeout(() => setUpdatedRow(null), 2000);
+      });
   }
 
   const today = new Date();
@@ -69,9 +88,12 @@ export default function Home() {
   }
 
   function renderEventGroup(eventsList, title, color) {
+    const ATTENDANCE_COLUMN_START = 18;
+    const isPast = color === 'black';
+
     return (
       <>
-        <h3 style={{ color, marginTop: '40px', fontSize: '1.25em' }}>{title}</h3>
+        <h3 className={`section-title ${isPast ? 'past' : 'future'}`}>{title}</h3>
         {eventsList.map(({ row, rowIndex, parsedDate }) => {
           const formattedDate = parsedDate.toDateString();
           const [
@@ -82,8 +104,14 @@ export default function Home() {
             att1 = '', att2 = '', att3 = '', att4 = '', att5 = '', att6 = ''
           ] = row;
 
+          const sheetRow = rowIndex + 2;
+
           return (
-            <div key={rowIndex} className="event-card" style={eventCardStyle}>
+            <div
+              key={rowIndex}
+              className="event-card"
+              style={{ ...eventCardStyle, marginTop: rowIndex === 0 ? 24 : 12 }}
+            >
               <div style={{
                 fontWeight: 600,
                 marginBottom: '8px',
@@ -102,11 +130,25 @@ export default function Home() {
                 {expected && (
                   <div style={{
                     marginTop: '6px',
-                    marginBottom: '26px',
                     fontSize: '0.95em',
                     color: 'inherit'
                   }}>
                     Expected attendees: {expected}
+                  </div>
+                )}
+                {lead && (
+                  <div style={{
+                    marginTop: '10px',
+                    marginBottom: '20px',
+                    fontSize: '0.95em',
+                    color: 'inherit'
+                  }}>
+                    Kitchen lead: {lead}<br />
+                    {leadPhone && (
+                      <a href={`sms:${leadPhone}`} style={{ color: '#0079c2', textDecoration: 'none', display: 'inline-block', marginTop: '10px' }}>
+                        {leadPhone}
+                      </a>
+                    )}
                   </div>
                 )}
               </div>
@@ -125,7 +167,9 @@ export default function Home() {
                       <input
                         type="checkbox"
                         defaultChecked={att === '👍' || att === 'TRUE'}
-                        onChange={e => toggleAttendance(rowIndex + 2, i + 1, e.target.checked)}
+                        onChange={e =>
+                          toggleAttendance(sheetRow, ATTENDANCE_COLUMN_START + i, e.target.checked)
+                        }
                       /> {vol}
                     </label>
                     {phone && (
@@ -134,10 +178,28 @@ export default function Home() {
                   </div>
                 ) : null
               ))}
+
+              {updatedRow === sheetRow && (
+                <div style={inlineToastStyle}>{updatedMessage}</div>
+              )}
             </div>
           );
         })}
       </>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div style={loaderWrapper}>
+        <div style={spinnerStyle} />
+        <style jsx global>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
     );
   }
 
@@ -172,6 +234,20 @@ export default function Home() {
           color: #000000;
         }
 
+        .section-title {
+          margin-top: 40px;
+          font-size: 1.25em;
+          font-weight: 600;
+        }
+
+        .section-title.future {
+          color: navy;
+        }
+
+        .section-title.past {
+          color: black;
+        }
+
         @media (prefers-color-scheme: dark) {
           body {
             background-color: #121212;
@@ -182,6 +258,14 @@ export default function Home() {
             background-color: #1e1e1e;
             border-color: #333;
             color: #ffffff;
+          }
+
+          .section-title.future {
+            color: #66aaff;
+          }
+
+          .section-title.past {
+            color: #ccc;
           }
 
           a[href^="sms:"] {
@@ -224,4 +308,31 @@ const buttonStyle = {
   fontSize: '0.9em',
   fontFamily: 'monospace',
   transition: 'background-color 0.2s ease',
+};
+
+const inlineToastStyle = {
+  marginTop: '16px',
+  backgroundColor: '#ff0003',
+  color: '#fff',
+  padding: '8px 16px',
+  borderRadius: '6px',
+  fontSize: '0.95em',
+  textAlign: 'center',
+};
+
+const loaderWrapper = {
+  height: '100vh',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: '#f4f4f4',
+};
+
+const spinnerStyle = {
+  width: '36px',
+  height: '36px',
+  border: '3px solid rgba(0, 0, 0, 0.1)',
+  borderTop: '3px solid rgba(0, 0, 0, 0.7)',
+  borderRadius: '50%',
+  animation: 'spin 1s linear infinite',
 };

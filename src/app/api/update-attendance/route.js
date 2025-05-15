@@ -16,7 +16,15 @@ export async function POST(req) {
 
     const sheetId = process.env.GOOGLE_SHEET_ID;
     const sheetName = '2025 Schedule of Events';
-    const column = 15 + index;
+
+    // ✅ Use the index directly — no +15 offset
+    const column = index;
+
+    // 🔐 Optional: Prevent overshooting past column W
+    if (column > 23) {
+      return new Response(JSON.stringify({ error: 'Column index exceeds sheet width' }), { status: 400 });
+    }
+
     const cell = `${sheetName}!${columnToLetter(column)}${row}`;
 
     await sheets.spreadsheets.values.update({
