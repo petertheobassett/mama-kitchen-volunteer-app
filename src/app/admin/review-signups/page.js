@@ -9,10 +9,25 @@ export default function ReviewSignupsPage() {
   const [statusRow, setStatusRow] = useState(null);
 
   const fetchSignups = async () => {
-    const res = await fetch('/api/signups-overview');
-    const data = await res.json();
-    setSignups(data || []);
-    setLoading(false);
+    try {
+      const res = await fetch('/api/signups-overview');
+      const data = await res.json();
+
+      if (!Array.isArray(data)) {
+        console.error('❌ Invalid API response:', data);
+        setStatusMessage('⚠️ Error loading volunteer data.');
+        setSignups([]);
+        return;
+      }
+
+      setSignups(data);
+    } catch (err) {
+      console.error('❌ Network or parse error:', err);
+      setStatusMessage('⚠️ Failed to load signups.');
+      setSignups([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -52,8 +67,7 @@ export default function ReviewSignupsPage() {
     setStatusMessage(result.message);
     setTimeout(() => setStatusRow(null), 2000);
 
-    // 🔄 Re-fetch signups to refresh spots left
-    await fetchSignups();
+    await fetchSignups(); // Refresh after confirming
   };
 
   const isInDirectory = (vol) => vol.isInDirectory;
@@ -86,6 +100,7 @@ export default function ReviewSignupsPage() {
           style={{ maxWidth: 120, marginBottom: 12 }}
         />
         <h2 style={titleStyle}>🧑‍🍳 Review Volunteer Signups</h2>
+        {statusMessage && <p style={{ color: 'red', marginTop: 12 }}>{statusMessage}</p>}
       </div>
 
       {signups.map((vol, i) => (
@@ -112,19 +127,13 @@ export default function ReviewSignupsPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {!isInDirectory(vol) && !vol.needsDirectoryUpdate && (
-              <button
-                onClick={() => handleAdd(vol, i)}
-                style={buttonStyle('green')}
-              >
+              <button onClick={() => handleAdd(vol, i)} style={buttonStyle('green')}>
                 ➕ Add to Directory
               </button>
             )}
 
             {isInDirectory(vol) && vol.needsDirectoryUpdate && (
-              <button
-                onClick={() => handleAdd(vol, i)}
-                style={buttonStyle('orange')}
-              >
+              <button onClick={() => handleAdd(vol, i)} style={buttonStyle('orange')}>
                 ✏️ Update in Directory
               </button>
             )}
