@@ -59,8 +59,9 @@ export default function Home() {
       });
   }
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // normalize to midnight
+  // LOCAL midnight (PST) for clean date filtering
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const pastEvents = [];
   const futureEvents = [];
@@ -71,7 +72,9 @@ export default function Home() {
       if (!parsedDate) return;
 
       const eventObj = { row, rowIndex, parsedDate };
-      if (parsedDate >= today) {
+
+      const eventDay = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
+      if (eventDay >= today) {
         futureEvents.push(eventObj);
       } else {
         pastEvents.push(eventObj);
@@ -80,6 +83,10 @@ export default function Home() {
 
     futureEvents.sort((a, b) => a.parsedDate - b.parsedDate);
     pastEvents.sort((a, b) => b.parsedDate - a.parsedDate);
+
+    // Optional debug logging
+    console.log('🔵 Future Events:', futureEvents.map(e => e.row[1]));
+    console.log('⚫ Past Events:', pastEvents.map(e => e.row[1]));
   }
 
   function renderEventGroup(eventsList, title, color) {
@@ -273,6 +280,7 @@ export default function Home() {
   );
 }
 
+// Styles
 const pageWrapper = {
   maxWidth: 720,
   margin: '0 auto',
