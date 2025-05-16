@@ -16,3 +16,20 @@ All notable changes to this project will be documented in this file.
 - Dark mode styling improvements
 - Typography and spacing refinements
 - Lead contact + SMS link in event cards
+
+
+# Changelog
+
+## [v1.0.1] - 2025-05-16
+### Added
+- Mobile-first `<Header />` with animated hamburger nav
+- Dark mode styling for header and dropdown
+
+### Fixed
+- Email confirmation date formatting (PST)
+- Signup form now blocks full events
+- Fixed import paths using `@/components`
+
+### Changed
+- Removed header from signup page for a cleaner UX
+- Improved layout consistency across all pages
