@@ -8,6 +8,9 @@ export default function ReviewSignupsPage() {
   const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState('');
   const [statusRow, setStatusRow] = useState(null);
+  const [removedRows, setRemovedRows] = useState([]);
+  const [fadingRows, setFadingRows] = useState([]);
+  const [confirmedRows, setConfirmedRows] = useState([]);
 
   const fetchSignups = async () => {
     try {
@@ -16,16 +19,14 @@ export default function ReviewSignupsPage() {
 
       if (!Array.isArray(data)) {
         console.error('❌ Invalid API response:', data);
-        setStatusMessage('⚠️ Error loading volunteer data.');
-        setSignups([]);
+        setStatusRow(null);
         return;
       }
 
       setSignups(data);
     } catch (err) {
       console.error('❌ Network or parse error:', err);
-      setStatusMessage('⚠️ Failed to load signups.');
-      setSignups([]);
+      setStatusRow(null);
     } finally {
       setLoading(false);
     }
@@ -35,43 +36,58 @@ export default function ReviewSignupsPage() {
     fetchSignups();
   }, []);
 
-  const handleAdd = async (vol, row) => {
-    const res = await fetch('/api/add-to-directory', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: vol.name, phone: vol.phone, email: vol.email }),
-    });
-    const result = await res.json();
-    if (result.phoneUpdated) {
-      setStatusMessage(`Phone updated in directory: ${vol.phone}`);
-    } else {
-      setStatusMessage(result.message);
-    }
-    setStatusRow(row);
-    setTimeout(() => setStatusRow(null), 2000);
-  };
-
   const handleConfirm = async (vol, row) => {
-    const res = await fetch('/api/confirm-to-event', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: vol.name,
-        phone: vol.phone,
-        eventName: vol.event,
-        eventDate: vol.eventDate,
-      }),
-    });
-
-    const result = await res.json();
+    const key = `${vol.name}-${vol.phone}`;
     setStatusRow(row);
-    setStatusMessage(result.message);
-    setTimeout(() => setStatusRow(null), 2000);
+    setStatusMessage('⏳ Updating contact info...');
 
-    await fetchSignups();
+    try {
+      const dirRes = await fetch('/api/add-to-directory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: vol.name, phone: vol.phone, email: vol.email }),
+      });
+
+      const dirResult = await dirRes.json();
+      const dirMsg = dirResult.phoneUpdated
+        ? `📇 Contact info updated`
+        : dirResult.message || `📇 Already in directory`;
+
+      setStatusMessage(`${dirMsg} – confirming...`);
+
+      const confirmRes = await fetch('/api/confirm-to-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: vol.name,
+          phone: vol.phone,
+          eventName: vol.event,
+          eventDate: vol.eventDate,
+        }),
+      });
+
+      const confirmResult = await confirmRes.json();
+      const confirmMsg = confirmResult.message || 'Confirmed';
+
+      setStatusMessage(`✅ ${dirMsg} + ${confirmMsg}`);
+      setConfirmedRows((prev) => [...prev, key]);
+
+      setTimeout(() => {
+        setFadingRows((prev) => [...prev, key]);
+      }, 300);
+
+      setTimeout(() => {
+        setRemovedRows((prev) => [...prev, key]);
+        setFadingRows((prev) => prev.filter((k) => k !== key));
+        setStatusRow(null);
+        fetchSignups(); // delayed refresh
+      }, 700); // animation duration + buffer
+    } catch (err) {
+      console.error('❌ Confirmation error:', err);
+      setStatusMessage('❌ Failed to confirm volunteer.');
+      setStatusRow(null);
+    }
   };
-
-  const isInDirectory = (vol) => vol.isInDirectory;
 
   function parseYMDToLocal(dateStr) {
     const [year, month, day] = dateStr.split('-').map(Number);
@@ -117,74 +133,77 @@ export default function ReviewSignupsPage() {
             style={{ maxWidth: 120, marginBottom: 12 }}
           />
           <h2 style={titleStyle}>🧑‍🍳 Review Volunteer Signups</h2>
-          {statusMessage && <p style={{ color: 'red', marginTop: 12 }}>{statusMessage}</p>}
         </div>
 
-        {signups.map((vol, i) => (
-          <div key={i} className="event-card" style={eventCardStyle}>
-            <div style={{ marginBottom: 12 }}>
-              <strong>{vol.name}</strong>
-              <div style={{ fontSize: '0.9em', marginTop: 6 }}>{vol.email}</div>
-              <div style={{ fontSize: '0.9em', marginTop: 2 }}>📞 {vol.phone}</div>
-              <div style={{ fontSize: '0.9em', marginTop: 6 }}>
-                🗓️ {getWeekdayAbbr(vol.eventDate)} –{' '}
-                {parseYMDToLocal(vol.eventDate).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  timeZone: 'America/Los_Angeles',
-                })}{' '}
-                – {vol.event}
-              </div>
-              {vol.rating && (
-                <div style={{ fontSize: '0.9em', marginTop: 6 }}>⭐ Rating: {vol.rating}</div>
-              )}
-              {vol.lastEvent && (
-                <div style={{ fontSize: '0.9em', marginTop: 6 }}>
-                  🕓 Last: {vol.lastEvent} ({new Date(vol.lastDate).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    timeZone: 'America/Los_Angeles',
-                  })})
+        {signups
+          .filter((vol) => !removedRows.includes(`${vol.name}-${vol.phone}`))
+          .map((vol, i) => {
+            const key = `${vol.name}-${vol.phone}`;
+            const isFading = fadingRows.includes(key);
+            const isConfirmed = confirmedRows.includes(key);
+
+            return (
+              <div
+                key={key}
+                className={`event-card ${isFading ? 'fade-out' : ''}`}
+                style={{ ...eventCardStyle, position: 'relative' }}
+              >
+                {isConfirmed && <div style={checkmarkStyle}>✅</div>}
+
+                <div style={{ marginBottom: 12 }}>
+                  <strong>{vol.name}</strong>
+                  <div style={{ fontSize: '0.9em', marginTop: 6 }}>{vol.email}</div>
+                  <div style={{ fontSize: '0.9em', marginTop: 2 }}>📞 {vol.phone}</div>
+                  <div style={{ fontSize: '0.9em', marginTop: 6 }}>
+                    🗓️ {getWeekdayAbbr(vol.eventDate)} –{' '}
+                    {parseYMDToLocal(vol.eventDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      timeZone: 'America/Los_Angeles',
+                    })}{' '}
+                    – {vol.event}
+                  </div>
+                  {vol.rating && (
+                    <div style={{ fontSize: '0.9em', marginTop: 6 }}>⭐ Rating: {vol.rating}</div>
+                  )}
+                  {vol.lastEvent && (
+                    <div style={{ fontSize: '0.9em', marginTop: 6 }}>
+                      🕓 Last: {vol.lastEvent} (
+                      {new Date(vol.lastDate).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        timeZone: 'America/Los_Angeles',
+                      })}
+                      )
+                    </div>
+                  )}
+                  <div style={{ fontSize: '0.9em', marginTop: 6 }}>
+                    🧍‍♂️ Spots left: {vol.spotsLeft}
+                  </div>
                 </div>
-              )}
-              <div style={{ fontSize: '0.9em', marginTop: 6 }}>
-                🧍‍♂️ Spots left: {vol.spotsLeft}
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {vol.spotsLeft === 0 ? (
+                    <button disabled style={buttonStyle('gray')}>
+                      ❌ Event Full
+                    </button>
+                  ) : vol.lastEvent === vol.event ? (
+                    <button disabled style={buttonStyle('green')}>
+                      ✅ Volunteer Confirmed
+                    </button>
+                  ) : (
+                    <button onClick={() => handleConfirm(vol, i)} style={buttonStyle('blue')}>
+                      ✅ Confirm to Event
+                    </button>
+                  )}
+                </div>
+
+                {statusRow === i && <div style={inlineToastStyle}>{statusMessage}</div>}
               </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {!isInDirectory(vol) && !vol.needsDirectoryUpdate && (
-                <button onClick={() => handleAdd(vol, i)} style={buttonStyle('green')}>
-                  ➕ Add to Directory
-                </button>
-              )}
-
-              {isInDirectory(vol) && vol.needsDirectoryUpdate && (
-                <button onClick={() => handleAdd(vol, i)} style={buttonStyle('orange')}>
-                  ✏️ Update in Directory
-                </button>
-              )}
-
-              {vol.spotsLeft === 0 ? (
-                <button disabled style={buttonStyle('gray')}>
-                  ❌ Event Full
-                </button>
-              ) : vol.lastEvent === vol.event ? (
-                <button disabled style={buttonStyle('green')}>
-                  ✅ Volunteer Confirmed
-                </button>
-              ) : (
-                <button onClick={() => handleConfirm(vol, i)} style={buttonStyle('blue')}>
-                  ✅ Confirm to Event
-                </button>
-              )}
-            </div>
-
-            {statusRow === i && <div style={inlineToastStyle}>{statusMessage}</div>}
-          </div>
-        ))}
+            );
+          })}
 
         <style jsx global>{`
           body {
@@ -201,6 +220,13 @@ export default function ReviewSignupsPage() {
             padding: 24px;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
             margin-bottom: 24px;
+            transition: all 300ms ease;
+          }
+
+          .fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
           }
 
           @media (prefers-color-scheme: dark) {
@@ -284,4 +310,13 @@ const spinnerStyle = {
   borderTop: '3px solid rgba(0, 0, 0, 0.7)',
   borderRadius: '50%',
   animation: 'spin 1s linear infinite',
+};
+
+const checkmarkStyle = {
+  position: 'absolute',
+  top: 10,
+  right: 14,
+  fontSize: '1.5em',
+  opacity: 1,
+  transition: 'opacity 0.3s ease',
 };
