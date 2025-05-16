@@ -2,8 +2,7 @@ import { google } from 'googleapis';
 
 export async function POST(req) {
   try {
-    const body = await req.json();
-    const { row, index, checked } = body;
+    const { row, index, checked } = await req.json();
 
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
@@ -13,19 +12,14 @@ export async function POST(req) {
     );
 
     const sheets = google.sheets({ version: 'v4', auth });
-
     const sheetId = process.env.GOOGLE_SHEET_ID;
     const sheetName = '2025 Schedule of Events';
 
-    // ✅ Use the index directly — no +15 offset
-    const column = index;
-
-    // 🔐 Optional: Prevent overshooting past column W
-    if (column > 23) {
+    if (index > 23) {
       return new Response(JSON.stringify({ error: 'Column index exceeds sheet width' }), { status: 400 });
     }
 
-    const cell = `${sheetName}!${columnToLetter(column)}${row}`;
+    const cell = `${sheetName}!${columnToLetter(index)}${row}`;
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,

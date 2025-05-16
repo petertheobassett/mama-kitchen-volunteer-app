@@ -259,47 +259,43 @@ async function GET() {
         const sheetId = process.env.GOOGLE_SHEET_ID;
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: sheetId,
-            range: '2025 mcma events!A2:B100'
+            range: '2025 Schedule of Events!A2:Q1000'
         });
         const rows = response.data.values || [];
-        console.log('📄 Raw sheet rows:', rows);
-        const serialToDate = (val)=>{
-            const msPerDay = 24 * 60 * 60 * 1000;
-            const baseDate = new Date(Date.UTC(1899, 11, 30));
-            return new Date(baseDate.getTime() + val * msPerDay);
-        };
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // normalize
-        const events = rows.map(([rawDate, name])=>{
-            if (!rawDate || !name) {
-                console.warn('⚠️ Skipping row with missing data:', rawDate, name);
-                return null;
-            }
-            let parsed;
-            if (!isNaN(rawDate)) {
-                // Serial number format
-                parsed = serialToDate(Number(rawDate));
-            } else {
-                // ISO string format
-                parsed = new Date(rawDate.trim());
-            }
-            if (isNaN(parsed)) {
-                console.warn('⚠️ Invalid date format:', rawDate);
-                return null;
-            }
-            // Normalize for comparison
-            const parsedCopy = new Date(parsed);
-            parsedCopy.setHours(0, 0, 0, 0);
-            if (parsedCopy < today) {
-                return null; // Exclude past events
-            }
+        today.setHours(0, 0, 0, 0);
+        const volunteerCols = [
+            5,
+            7,
+            9,
+            11,
+            13,
+            15
+        ];
+        const events = rows.map((row)=>{
+            const rawDate = row[0];
+            const name = row[1];
+            if (!rawDate || !name) return null;
+            const [yyyy, m, d] = rawDate.split('-');
+            const mm = m.padStart(2, '0');
+            const dd = d.padStart(2, '0');
+            const parsed = new Date(+yyyy, +mm - 1, +dd);
+            if (isNaN(parsed)) return null;
+            const parsedMidnight = new Date(parsed);
+            parsedMidnight.setHours(0, 0, 0, 0);
+            if (parsedMidnight < today) return null;
+            const filledSpots = volunteerCols.reduce((count, col)=>{
+                const cell = row[col];
+                return cell?.trim() ? count + 1 : count;
+            }, 0);
+            const spotsLeft = 6 - filledSpots;
             return {
                 name: name.trim(),
-                date: parsed.toISOString().slice(0, 10),
-                label: `${parsed.toDateString()} – ${name.trim()}`
+                date: `${parsed.getFullYear()}-${mm}-${dd}`,
+                label: `${parsed.toDateString()} – ${name.trim()}${spotsLeft === 0 ? ' (FULL)' : ''}`,
+                spotsLeft
             };
         }).filter(Boolean);
-        console.log('✅ Parsed future events:', events);
         return new Response(JSON.stringify(events), {
             status: 200,
             headers: {
@@ -307,7 +303,7 @@ async function GET() {
             }
         });
     } catch (err) {
-        console.error('❌ Error fetching events:', err);
+        console.error('❌ Error fetching signup events:', err);
         return new Response(JSON.stringify({
             error: err.message
         }), {

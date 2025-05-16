@@ -249,7 +249,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$googleapis$2
 ;
 async function GET() {
     try {
-        const auth = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$googleapis$2f$build$2f$src$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["google"].auth.JWT(process.env.GOOGLE_CLIENT_EMAIL, null, process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'), [
+        const auth = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$googleapis$2f$build$2f$src$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["google"].auth.JWT(process.env.GOOGLE_CLIENT_EMAIL, null, process.env.GOOGLE_PRIVATE_KEY.replace(/\n/g, '\n'), [
             'https://www.googleapis.com/auth/spreadsheets.readonly'
         ]);
         const sheets = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$googleapis$2f$build$2f$src$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["google"].sheets({
@@ -257,48 +257,52 @@ async function GET() {
             auth
         });
         const sheetId = process.env.GOOGLE_SHEET_ID;
-        const range = '2025 Schedule of Events!A2:AH1000';
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: sheetId,
-            range
+            range: '2025 Schedule of Events!A2:Q1000'
         });
         const rows = response.data.values || [];
-        const serialToDate = (serial)=>{
-            const base = new Date(Date.UTC(1899, 11, 30));
-            return new Date(base.getTime() + serial * 86400000);
-        };
-        const normalizedEvents = rows.map((row, i)=>{
-            const rawDate = row[0];
-            if (!rawDate) return null;
-            let parsed;
-            if (!isNaN(rawDate)) {
-                parsed = serialToDate(Number(rawDate));
-            } else {
-                parsed = new Date(rawDate.trim());
-            }
-            if (isNaN(parsed)) {
-                console.warn(`❌ Skipping row ${i + 2} — invalid date:`, rawDate);
-                return null;
-            }
+        const events = rows.map((row, i)=>{
+            // Ensure row has at least 17 cells (columns A–Q)
+            const padded = [
+                ...row
+            ];
+            while(padded.length < 17)padded.push('');
+            const rawDate = padded[0];
+            const name = padded[1];
+            if (!rawDate || !name) return null;
+            // Parse and normalize date from raw yyyy-m-d
+            const [yyyy, m, d] = rawDate.split('-');
+            const mm = m.padStart(2, '0');
+            const dd = d.padStart(2, '0');
+            const parsedDate = new Date(+yyyy, +mm - 1, +dd, 12);
+            if (isNaN(parsedDate)) return null;
+            const iso = `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}`;
             return {
-                raw: row,
-                date: rawDate,
-                parsedDate: parsed.toISOString()
+                raw: padded,
+                date: iso,
+                label: `${parsedDate.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                })} – ${name}`
             };
         }).filter(Boolean);
-        console.log(`✅ Loaded ${normalizedEvents.length} events from sheet`);
-        return new Response(JSON.stringify(normalizedEvents), {
-            status: 200,
+        return new Response(JSON.stringify(events), {
             headers: {
                 'Content-Type': 'application/json'
             }
         });
     } catch (err) {
-        console.error('❌ Sheet fetch error:', err);
+        console.error('❌ Error in /api/get-events:', err);
         return new Response(JSON.stringify({
-            error: err.message
+            error: 'Failed to fetch events'
         }), {
-            status: 500
+            status: 500,
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
     }
 }

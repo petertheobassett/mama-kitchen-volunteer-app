@@ -249,8 +249,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$googleapis$2
 ;
 async function POST(req) {
     try {
-        const body = await req.json();
-        const { row, index, checked } = body;
+        const { row, index, checked } = await req.json();
         const auth = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$googleapis$2f$build$2f$src$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["google"].auth.JWT(process.env.GOOGLE_CLIENT_EMAIL, null, process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'), [
             'https://www.googleapis.com/auth/spreadsheets'
         ]);
@@ -260,17 +259,14 @@ async function POST(req) {
         });
         const sheetId = process.env.GOOGLE_SHEET_ID;
         const sheetName = '2025 Schedule of Events';
-        // ✅ Use the index directly — no +15 offset
-        const column = index;
-        // 🔐 Optional: Prevent overshooting past column W
-        if (column > 23) {
+        if (index > 23) {
             return new Response(JSON.stringify({
                 error: 'Column index exceeds sheet width'
             }), {
                 status: 400
             });
         }
-        const cell = `${sheetName}!${columnToLetter(column)}${row}`;
+        const cell = `${sheetName}!${columnToLetter(index)}${row}`;
         await sheets.spreadsheets.values.update({
             spreadsheetId: sheetId,
             range: cell,

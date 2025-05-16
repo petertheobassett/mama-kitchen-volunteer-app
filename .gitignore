@@ -1,3 +1,4 @@
 node_modules/
 .env.local
 mcma-volunteer-app-043e00fdd3eb.json
+.vercel

@@ -10,7 +10,7 @@ export async function POST(req) {
   const auth = new google.auth.GoogleAuth({
     credentials: {
       client_email: process.env.GOOGLE_CLIENT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\n/g, '\n'),
     },
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
@@ -23,20 +23,35 @@ export async function POST(req) {
   const rows = result.data.values;
   const data = rows.slice(1); // skip header
 
-  const matchIndex = data.findIndex(row =>
-    row[0]?.trim() === eventDate.trim() &&
-    row[1]?.trim().toLowerCase() === eventName.trim().toLowerCase()
-  );
+  const toISODate = (val) => {
+    if (!val) return '';
+    if (!isNaN(val)) {
+      // fallback for serial dates
+      const base = new Date(1899, 11, 30);
+      const parsed = new Date(base.getTime() + Number(val) * 24 * 60 * 60 * 1000);
+      return parsed.toISOString().slice(0, 10);
+    }
+    const [yyyy, m, d] = String(val).split('-');
+    if (!yyyy || !m || !d) return '';
+    const parsed = new Date(+yyyy, +m - 1, +d);
+    return isNaN(parsed) ? '' : parsed.toISOString().slice(0, 10);
+  };  
+
+  const normalizedDate = toISODate(eventDate);
+  const normalize = str => (str || '').replace(/\s+/g, ' ').trim().toLowerCase();
+
+  const matchIndex = data.findIndex(row => {
+    const rowDate = toISODate(row[0]);
+    const rowName = normalize(row[1]);
+    return rowDate === normalizedDate && rowName === normalize(eventName);
+  });
 
   if (matchIndex === -1) {
     return Response.json({ message: 'Event not found', notFound: true }, { status: 404 });
   }
 
   const row = data[matchIndex];
-  const volunteerCols = [5, 7, 9, 11, 13, 15]; // F, H, J, L, N, P
-
-  console.log('Matched row index:', matchIndex);
-  console.log('Volunteer name cells:', volunteerCols.map(i => `[${i}] "${row[i]}"`).join(', '));
+  const volunteerCols = [5, 7, 9, 11, 13, 15];
 
   let emptyCol = null;
   for (const col of volunteerCols) {
@@ -54,8 +69,6 @@ export async function POST(req) {
   const sheetRow = matchIndex + 2;
   const nameCol = String.fromCharCode(65 + emptyCol);
   const phoneCol = String.fromCharCode(65 + emptyCol + 1);
-
-  console.log(`Confirming ${name} to "${eventName}" on ${eventDate} at row ${sheetRow}, cols ${nameCol}/${phoneCol}`);
 
   try {
     await sheets.spreadsheets.values.batchUpdate({

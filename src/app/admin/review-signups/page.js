@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Header from '@/components/Header';
 
 export default function ReviewSignupsPage() {
   const [signups, setSignups] = useState([]);
@@ -67,14 +68,24 @@ export default function ReviewSignupsPage() {
     setStatusMessage(result.message);
     setTimeout(() => setStatusRow(null), 2000);
 
-    await fetchSignups(); // Refresh after confirming
+    await fetchSignups();
   };
 
   const isInDirectory = (vol) => vol.isInDirectory;
 
+  function parseYMDToLocal(dateStr) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
   function getWeekdayAbbr(dateStr) {
-    const date = new Date(dateStr);
-    return isNaN(date) ? '' : date.toLocaleDateString('en-US', { weekday: 'short' });
+    const date = parseYMDToLocal(dateStr);
+    return isNaN(date)
+      ? ''
+      : date.toLocaleDateString('en-US', {
+          weekday: 'short',
+          timeZone: 'America/Los_Angeles',
+        });
   }
 
   if (loading) {
@@ -83,8 +94,12 @@ export default function ReviewSignupsPage() {
         <div style={spinnerStyle} />
         <style jsx global>{`
           @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
           }
         `}</style>
       </div>
@@ -92,97 +107,117 @@ export default function ReviewSignupsPage() {
   }
 
   return (
-    <div style={pageWrapper}>
-      <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <img
-          src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png"
-          alt="MCMA Kitchen Logo"
-          style={{ maxWidth: 120, marginBottom: 12 }}
-        />
-        <h2 style={titleStyle}>🧑‍🍳 Review Volunteer Signups</h2>
-        {statusMessage && <p style={{ color: 'red', marginTop: 12 }}>{statusMessage}</p>}
-      </div>
-
-      {signups.map((vol, i) => (
-        <div key={i} className="event-card" style={eventCardStyle}>
-          <div style={{ marginBottom: 12 }}>
-            <strong>{vol.name}</strong>
-            <div style={{ fontSize: '0.9em', marginTop: 6 }}>{vol.email}</div>
-            <div style={{ fontSize: '0.9em', marginTop: 2 }}>📞 {vol.phone}</div>
-            <div style={{ fontSize: '0.9em', marginTop: 6 }}>
-              🗓️ {getWeekdayAbbr(vol.eventDate)} – {vol.eventDate || vol.date}
-            </div>
-            {vol.rating && (
-              <div style={{ fontSize: '0.9em', marginTop: 6 }}>⭐ Rating: {vol.rating}</div>
-            )}
-            {vol.lastEvent && (
-              <div style={{ fontSize: '0.9em', marginTop: 6 }}>
-                🕓 Last: {vol.lastEvent} ({vol.lastDate})
-              </div>
-            )}
-            <div style={{ fontSize: '0.9em', marginTop: 6 }}>
-              🧍‍♂️ Spots left: {vol.spotsLeft}
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {!isInDirectory(vol) && !vol.needsDirectoryUpdate && (
-              <button onClick={() => handleAdd(vol, i)} style={buttonStyle('green')}>
-                ➕ Add to Directory
-              </button>
-            )}
-
-            {isInDirectory(vol) && vol.needsDirectoryUpdate && (
-              <button onClick={() => handleAdd(vol, i)} style={buttonStyle('orange')}>
-                ✏️ Update in Directory
-              </button>
-            )}
-
-            <button
-              onClick={() => vol.spotsLeft > 0 && handleConfirm(vol, i)}
-              disabled={vol.spotsLeft === 0}
-              style={buttonStyle(vol.spotsLeft > 0 ? 'blue' : 'gray')}
-            >
-              ✅ Confirm to Event
-            </button>
-          </div>
-
-          {statusRow === i && (
-            <div style={inlineToastStyle}>{statusMessage}</div>
-          )}
+    <>
+      <Header autoCollapse={true} />
+      <div style={pageWrapper}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <img
+            src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png"
+            alt="MCMA Kitchen Logo"
+            style={{ maxWidth: 120, marginBottom: 12 }}
+          />
+          <h2 style={titleStyle}>🧑‍🍳 Review Volunteer Signups</h2>
+          {statusMessage && <p style={{ color: 'red', marginTop: 12 }}>{statusMessage}</p>}
         </div>
-      ))}
 
-      <style jsx global>{`
-        body {
-          background-color: #f4f4f4;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-          color: #000;
-        }
+        {signups.map((vol, i) => (
+          <div key={i} className="event-card" style={eventCardStyle}>
+            <div style={{ marginBottom: 12 }}>
+              <strong>{vol.name}</strong>
+              <div style={{ fontSize: '0.9em', marginTop: 6 }}>{vol.email}</div>
+              <div style={{ fontSize: '0.9em', marginTop: 2 }}>📞 {vol.phone}</div>
+              <div style={{ fontSize: '0.9em', marginTop: 6 }}>
+                🗓️ {getWeekdayAbbr(vol.eventDate)} –{' '}
+                {parseYMDToLocal(vol.eventDate).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  timeZone: 'America/Los_Angeles',
+                })}{' '}
+                – {vol.event}
+              </div>
+              {vol.rating && (
+                <div style={{ fontSize: '0.9em', marginTop: 6 }}>⭐ Rating: {vol.rating}</div>
+              )}
+              {vol.lastEvent && (
+                <div style={{ fontSize: '0.9em', marginTop: 6 }}>
+                  🕓 Last: {vol.lastEvent} ({new Date(vol.lastDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    timeZone: 'America/Los_Angeles',
+                  })})
+                </div>
+              )}
+              <div style={{ fontSize: '0.9em', marginTop: 6 }}>
+                🧍‍♂️ Spots left: {vol.spotsLeft}
+              </div>
+            </div>
 
-        .event-card {
-          background-color: #fff;
-          border: 1px solid #e5e5e5;
-          border-radius: 16px;
-          padding: 24px;
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
-          margin-bottom: 24px;
-        }
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {!isInDirectory(vol) && !vol.needsDirectoryUpdate && (
+                <button onClick={() => handleAdd(vol, i)} style={buttonStyle('green')}>
+                  ➕ Add to Directory
+                </button>
+              )}
 
-        @media (prefers-color-scheme: dark) {
+              {isInDirectory(vol) && vol.needsDirectoryUpdate && (
+                <button onClick={() => handleAdd(vol, i)} style={buttonStyle('orange')}>
+                  ✏️ Update in Directory
+                </button>
+              )}
+
+              {vol.spotsLeft === 0 ? (
+                <button disabled style={buttonStyle('gray')}>
+                  ❌ Event Full
+                </button>
+              ) : vol.lastEvent === vol.event ? (
+                <button disabled style={buttonStyle('green')}>
+                  ✅ Volunteer Confirmed
+                </button>
+              ) : (
+                <button onClick={() => handleConfirm(vol, i)} style={buttonStyle('blue')}>
+                  ✅ Confirm to Event
+                </button>
+              )}
+            </div>
+
+            {statusRow === i && <div style={inlineToastStyle}>{statusMessage}</div>}
+          </div>
+        ))}
+
+        <style jsx global>{`
           body {
-            background-color: #121212;
-            color: #fff;
+            background-color: #f4f4f4;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+              sans-serif;
+            color: #000;
           }
 
           .event-card {
-            background-color: #1e1e1e;
-            border-color: #333;
-            color: #fff;
+            background-color: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
           }
-        }
-      `}</style>
-    </div>
+
+          @media (prefers-color-scheme: dark) {
+            body {
+              background-color: #121212;
+              color: #fff;
+            }
+
+            .event-card {
+              background-color: #1e1e1e;
+              border-color: #333;
+              color: #fff;
+            }
+          }
+        `}</style>
+      </div>
+    </>
   );
 }
 
@@ -209,10 +244,13 @@ const eventCardStyle = {
 
 const buttonStyle = (color) => ({
   backgroundColor:
-    color === 'green' ? '#27ae60' :
-    color === 'blue' ? '#2980b9' :
-    color === 'orange' ? '#f39c12' :
-    '#aaa',
+    color === 'green'
+      ? '#27ae60'
+      : color === 'blue'
+      ? '#2980b9'
+      : color === 'orange'
+      ? '#f39c12'
+      : '#aaa',
   color: 'white',
   padding: '8px 12px',
   borderRadius: '8px',

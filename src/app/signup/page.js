@@ -6,6 +6,7 @@ export default function SignupPage() {
   const [events, setEvents] = useState([]);
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
+  const [selectedSpotsLeft, setSelectedSpotsLeft] = useState(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -13,14 +14,19 @@ export default function SignupPage() {
   const [submittedData, setSubmittedData] = useState(null);
 
   useEffect(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const parseYMDToLocal = (dateStr) => {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    };
+
     fetch('/api/get-signup-events')
       .then(res => res.json())
       .then(data => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
         const future = data.filter(event => {
-          const eventDay = new Date(event.date);
-          eventDay.setHours(0, 0, 0, 0);
+          const eventDay = parseYMDToLocal(event.date);
           return eventDay >= today;
         });
         setEvents(future);
@@ -42,6 +48,11 @@ export default function SignupPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setStatus(null);
+
+    if (selectedSpotsLeft === 0) {
+      setStatus('❌ This event is already full. Please choose another.');
+      return;
+    }
 
     const formattedPhone = formatPhone(phone);
     if (!formattedPhone) {
@@ -78,6 +89,7 @@ export default function SignupPage() {
         setSubmittedData(result.submitted);
         setEventName('');
         setEventDate('');
+        setSelectedSpotsLeft(null);
         setName('');
         setPhone('');
         setEmail('');
@@ -90,154 +102,170 @@ export default function SignupPage() {
   }
 
   return (
-    <div style={containerStyle}>
-      <div style={{ textAlign: 'center', marginBottom: 24 }}>
-        <img
-          src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png"
-          alt="MCMA Kitchen Logo"
-          style={{ maxWidth: 120, marginBottom: 12 }}
-        />
-        <h2 style={titleStyle}>Kitchen Volunteer Signup</h2>
-      </div>
+    <>
+      <div style={containerStyle}>
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <img
+            src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png"
+            alt="MCMA Kitchen Logo"
+            style={{ maxWidth: 120, marginBottom: 12 }}
+          />
+          <h2 style={titleStyle}>Kitchen Volunteer Signup</h2>
+        </div>
 
-      {submittedData ? (
-        <>
-          <div className="confirmation-box" style={confirmationBox}>
-            <h3 style={{ marginBottom: 12 }}>✅ You're signed up!</h3>
-            <p><strong>Event:</strong> {submittedData.eventName}</p>
-            <p><strong>Date:</strong> {submittedData.formattedEventDate}</p>
-            <p><strong>Name:</strong> {submittedData.name}</p>
-            <p><strong>Phone:</strong> {submittedData.formattedPhone}</p>
-            <p><strong>Email:</strong> {submittedData.email}</p>
-            <p style={{ marginTop: 20 }}>You’ll receive an email confirmation shortly.</p>
-          </div>
-          <p style={disclaimerStyle}>
-            We respect your privacy. Your information is used only for coordinating volunteers. It will never be sold or shared.
-          </p>
-        </>
-      ) : (
-        <>
-          <form onSubmit={handleSubmit} style={formStyle}>
-            <div style={fieldStyle}>
-              <label htmlFor="event" style={labelStyle}>Event</label>
-              <div style={{ position: 'relative' }}>
-                <select
-                  id="event"
-                  name="event"
+        {submittedData ? (
+          <>
+            <div className="confirmation-box" style={confirmationBox}>
+              <h3 style={{ marginBottom: 12 }}>✅ You're signed up!</h3>
+              <p><strong>Event:</strong> {submittedData.eventName}</p>
+              <p><strong>Date:</strong> {submittedData.formattedEventDate}</p>
+              <p><strong>Name:</strong> {submittedData.name}</p>
+              <p><strong>Phone:</strong> {submittedData.formattedPhone}</p>
+              <p><strong>Email:</strong> {submittedData.email}</p>
+              <p style={{ marginTop: 20 }}>You’ll receive an email confirmation shortly.</p>
+            </div>
+            <p style={disclaimerStyle}>
+              We respect your privacy. Your information is used only for coordinating volunteers. It will never be sold or shared.
+            </p>
+          </>
+        ) : (
+          <>
+            <form onSubmit={handleSubmit} style={formStyle}>
+              <div style={fieldStyle}>
+                <label htmlFor="event" style={labelStyle}>Event</label>
+                <div style={{ position: 'relative' }}>
+                  <select
+                    id="event"
+                    name="event"
+                    required
+                    value={eventDate && eventName ? `${eventDate}---${eventName}` : ''}
+                    onChange={e => {
+                      const [selectedDate, ...nameParts] = e.target.value.split('---');
+                      const selectedName = nameParts.join('---');
+                      const eventMatch = events.find(ev => ev.date === selectedDate && ev.name === selectedName);
+                      setEventDate(selectedDate);
+                      setEventName(selectedName);
+                      setSelectedSpotsLeft(eventMatch?.spotsLeft ?? null);
+                    }}
+                    style={inputStyle}
+                  >
+                    <option value="">-- Select an event --</option>
+                    {events.map(({ label, name, date }) => (
+                      <option key={label} value={`${date}---${name}`}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                  <span style={chevronStyle}>▼</span>
+                </div>
+                {selectedSpotsLeft === 0 && (
+                  <p style={{ color: 'red', marginTop: 6, fontSize: '0.9em' }}>
+                    ❌ This event is full. Please choose another.
+                  </p>
+                )}
+              </div>
+
+              <div style={fieldStyle}>
+                <label htmlFor="name" style={labelStyle}>Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  style={inputStyle}
                   required
-                  value={eventDate && eventName ? `${eventDate}---${eventName}` : ''}
-                  onChange={e => {
-                    const [selectedDate, ...nameParts] = e.target.value.split('---');
-                    const selectedName = nameParts.join('---');
-                    setEventDate(selectedDate);
-                    setEventName(selectedName);
+                />
+              </div>
+
+              <div style={fieldStyle}>
+                <label htmlFor="phone" style={labelStyle}>Phone</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  onBlur={e => {
+                    const formatted = formatPhone(e.target.value);
+                    if (formatted) setPhone(formatted);
+                    else setStatus('❌ Invalid phone number (must be 10 digits)');
                   }}
                   style={inputStyle}
-                >
-                  <option value="">-- Select an event --</option>
-                  {events.map(({ label, name, date }) => (
-                    <option key={label} value={`${date}---${name}`}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-                <span style={chevronStyle}>▼</span>
+                  required
+                />
               </div>
-            </div>
 
-            <div style={fieldStyle}>
-              <label htmlFor="name" style={labelStyle}>Name</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                style={inputStyle}
-                required
-              />
-            </div>
+              <div style={fieldStyle}>
+                <label htmlFor="email" style={labelStyle}>Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  style={inputStyle}
+                  required
+                />
+              </div>
 
-            <div style={fieldStyle}>
-              <label htmlFor="phone" style={labelStyle}>Phone</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-                onBlur={e => {
-                  const formatted = formatPhone(e.target.value);
-                  if (formatted) setPhone(formatted);
-                  else setStatus('❌ Invalid phone number (must be 10 digits)');
-                }}
-                style={inputStyle}
-                required
-              />
-            </div>
+              <button type="submit" style={{
+                ...buttonStyle,
+                backgroundColor: selectedSpotsLeft === 0 ? '#aaa' : buttonStyle.backgroundColor,
+                cursor: selectedSpotsLeft === 0 ? 'not-allowed' : 'pointer'
+              }} disabled={selectedSpotsLeft === 0}>
+                Submit
+              </button>
 
-            <div style={fieldStyle}>
-              <label htmlFor="email" style={labelStyle}>Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                style={inputStyle}
-                required
-              />
-            </div>
+              {status && <p style={{ marginTop: 20, fontSize: '0.95em' }}>{status}</p>}
+            </form>
+            <p style={disclaimerStyle}>
+              We respect your privacy. Your information is used only for coordinating volunteers. It will never be sold or shared.
+            </p>
+          </>
+        )}
 
-            <button type="submit" style={buttonStyle}>Submit</button>
-            {status && <p style={{ marginTop: 20, fontSize: '0.95em' }}>{status}</p>}
-          </form>
-          <p style={disclaimerStyle}>
-            We respect your privacy. Your information is used only for coordinating volunteers. It will never be sold or shared.
-          </p>
-        </>
-      )}
-
-      <style jsx global>{`
-        body {
-          background-color: #ffffff;
-          color: #000000;
-          transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        @media (prefers-color-scheme: dark) {
+        <style jsx global>{`
           body {
-            background-color: #121212;
-            color: #ffffff;
+            background-color: #ffffff;
+            color: #000000;
+            transition: background-color 0.3s ease, color 0.3s ease;
           }
 
-          form {
-            background: #1e1e1e !important;
-            border-color: #333 !important;
-          }
+          @media (prefers-color-scheme: dark) {
+            body {
+              background-color: #121212;
+              color: #ffffff;
+            }
 
-          input, select {
-            background-color: #2a2a2a !important;
-            color: #ffffff !important;
-            border-color: #444 !important;
-          }
+            form {
+              background: #1e1e1e !important;
+              border-color: #333 !important;
+            }
 
-          label {
-            color: #ccc !important;
-          }
+            input, select {
+              background-color: #2a2a2a !important;
+              color: #ffffff !important;
+              border-color: #444 !important;
+            }
 
-          button {
-            background-color: #e0e0e0 !important;
-            color: #000 !important;
-          }
+            label {
+              color: #ccc !important;
+            }
 
-          .confirmation-box {
-            background: #1f1f1f !important;
-            border-color: #333 !important;
+            button {
+              background-color: #e0e0e0 !important;
+              color: #000 !important;
+            }
+
+            .confirmation-box {
+              background: #1f1f1f !important;
+              border-color: #333 !important;
+            }
           }
-        }
-      `}</style>
-    </div>
+        `}</style>
+      </div>
+    </>
   );
 }
 

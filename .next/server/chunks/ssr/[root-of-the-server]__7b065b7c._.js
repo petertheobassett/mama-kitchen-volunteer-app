@@ -19,7 +19,13 @@ __turbopack_context__.s({
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/styled-jsx/style.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
+(()=>{
+    const e = new Error("Cannot find module '../../components/Header'");
+    e.code = 'MODULE_NOT_FOUND';
+    throw e;
+})();
 'use client';
+;
 ;
 ;
 ;
@@ -29,10 +35,23 @@ function ReviewSignupsPage() {
     const [statusMessage, setStatusMessage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
     const [statusRow, setStatusRow] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const fetchSignups = async ()=>{
-        const res = await fetch('/api/signups-overview');
-        const data = await res.json();
-        setSignups(data || []);
-        setLoading(false);
+        try {
+            const res = await fetch('/api/signups-overview');
+            const data = await res.json();
+            if (!Array.isArray(data)) {
+                console.error('❌ Invalid API response:', data);
+                setStatusMessage('⚠️ Error loading volunteer data.');
+                setSignups([]);
+                return;
+            }
+            setSignups(data);
+        } catch (err) {
+            console.error('❌ Network or parse error:', err);
+            setStatusMessage('⚠️ Failed to load signups.');
+            setSignups([]);
+        } finally{
+            setLoading(false);
+        }
     };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         fetchSignups();
@@ -75,265 +94,323 @@ function ReviewSignupsPage() {
         setStatusRow(row);
         setStatusMessage(result.message);
         setTimeout(()=>setStatusRow(null), 2000);
-        // 🔄 Re-fetch signups to refresh spots left
         await fetchSignups();
     };
     const isInDirectory = (vol)=>vol.isInDirectory;
+    function parseYMDToLocal(dateStr) {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        return new Date(year, month - 1, day);
+    }
     function getWeekdayAbbr(dateStr) {
-        const date = new Date(dateStr);
+        const date = parseYMDToLocal(dateStr);
         return isNaN(date) ? '' : date.toLocaleDateString('en-US', {
-            weekday: 'short'
+            weekday: 'short',
+            timeZone: 'America/Los_Angeles'
         });
     }
     if (loading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             style: loaderWrapper,
-            className: "jsx-d525c98fb358669b",
+            className: "jsx-4766370470659030",
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     style: spinnerStyle,
-                    className: "jsx-d525c98fb358669b"
+                    className: "jsx-4766370470659030"
                 }, void 0, false, {
                     fileName: "[project]/src/app/admin/review-signups/page.js",
-                    lineNumber: 69,
+                    lineNumber: 94,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                    id: "d525c98fb358669b",
+                    id: "4766370470659030",
                     children: "@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}"
                 }, void 0, false, void 0, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/admin/review-signups/page.js",
-            lineNumber: 68,
+            lineNumber: 93,
             columnNumber: 7
         }, this);
     }
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        style: pageWrapper,
-        className: "jsx-d38c63200ed9fb83",
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
         children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Header, {
+                autoCollapse: true
+            }, void 0, false, {
+                fileName: "[project]/src/app/admin/review-signups/page.js",
+                lineNumber: 111,
+                columnNumber: 7
+            }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                style: {
-                    textAlign: 'center',
-                    marginBottom: 32
-                },
-                className: "jsx-d38c63200ed9fb83",
+                style: pageWrapper,
+                className: "jsx-690b48bb4d491725",
                 children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                        src: "https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png",
-                        alt: "MCMA Kitchen Logo",
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         style: {
-                            maxWidth: 120,
-                            marginBottom: 12
+                            textAlign: 'center',
+                            marginBottom: 32
                         },
-                        className: "jsx-d38c63200ed9fb83"
-                    }, void 0, false, {
+                        className: "jsx-690b48bb4d491725",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                src: "https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png",
+                                alt: "MCMA Kitchen Logo",
+                                style: {
+                                    maxWidth: 120,
+                                    marginBottom: 12
+                                },
+                                className: "jsx-690b48bb4d491725"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/admin/review-signups/page.js",
+                                lineNumber: 114,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                style: titleStyle,
+                                className: "jsx-690b48bb4d491725",
+                                children: "🧑‍🍳 Review Volunteer Signups"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/admin/review-signups/page.js",
+                                lineNumber: 119,
+                                columnNumber: 11
+                            }, this),
+                            statusMessage && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                style: {
+                                    color: 'red',
+                                    marginTop: 12
+                                },
+                                className: "jsx-690b48bb4d491725",
+                                children: statusMessage
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/admin/review-signups/page.js",
+                                lineNumber: 120,
+                                columnNumber: 29
+                            }, this)
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/src/app/admin/review-signups/page.js",
-                        lineNumber: 83,
+                        lineNumber: 113,
                         columnNumber: 9
                     }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                        style: titleStyle,
-                        className: "jsx-d38c63200ed9fb83",
-                        children: "🧑‍🍳 Review Volunteer Signups"
-                    }, void 0, false, {
-                        fileName: "[project]/src/app/admin/review-signups/page.js",
-                        lineNumber: 88,
-                        columnNumber: 9
-                    }, this)
+                    signups.map((vol, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            style: eventCardStyle,
+                            className: "jsx-690b48bb4d491725" + " " + "event-card",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: {
+                                        marginBottom: 12
+                                    },
+                                    className: "jsx-690b48bb4d491725",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                            className: "jsx-690b48bb4d491725",
+                                            children: vol.name
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                                            lineNumber: 126,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                fontSize: '0.9em',
+                                                marginTop: 6
+                                            },
+                                            className: "jsx-690b48bb4d491725",
+                                            children: vol.email
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                                            lineNumber: 127,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                fontSize: '0.9em',
+                                                marginTop: 2
+                                            },
+                                            className: "jsx-690b48bb4d491725",
+                                            children: [
+                                                "📞 ",
+                                                vol.phone
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                                            lineNumber: 128,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                fontSize: '0.9em',
+                                                marginTop: 6
+                                            },
+                                            className: "jsx-690b48bb4d491725",
+                                            children: [
+                                                "🗓️ ",
+                                                getWeekdayAbbr(vol.eventDate),
+                                                " –",
+                                                ' ',
+                                                parseYMDToLocal(vol.eventDate).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    timeZone: 'America/Los_Angeles'
+                                                }),
+                                                ' ',
+                                                "– ",
+                                                vol.event
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                                            lineNumber: 129,
+                                            columnNumber: 15
+                                        }, this),
+                                        vol.rating && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                fontSize: '0.9em',
+                                                marginTop: 6
+                                            },
+                                            className: "jsx-690b48bb4d491725",
+                                            children: [
+                                                "⭐ Rating: ",
+                                                vol.rating
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                                            lineNumber: 140,
+                                            columnNumber: 17
+                                        }, this),
+                                        vol.lastEvent && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                fontSize: '0.9em',
+                                                marginTop: 6
+                                            },
+                                            className: "jsx-690b48bb4d491725",
+                                            children: [
+                                                "🕓 Last: ",
+                                                vol.lastEvent,
+                                                " (",
+                                                new Date(vol.lastDate).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    timeZone: 'America/Los_Angeles'
+                                                }),
+                                                ")"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                                            lineNumber: 143,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                fontSize: '0.9em',
+                                                marginTop: 6
+                                            },
+                                            className: "jsx-690b48bb4d491725",
+                                            children: [
+                                                "🧍‍♂️ Spots left: ",
+                                                vol.spotsLeft
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                                            lineNumber: 152,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/admin/review-signups/page.js",
+                                    lineNumber: 125,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: {
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '10px'
+                                    },
+                                    className: "jsx-690b48bb4d491725",
+                                    children: [
+                                        !isInDirectory(vol) && !vol.needsDirectoryUpdate && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            onClick: ()=>handleAdd(vol, i),
+                                            style: buttonStyle('green'),
+                                            className: "jsx-690b48bb4d491725",
+                                            children: "➕ Add to Directory"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                                            lineNumber: 159,
+                                            columnNumber: 17
+                                        }, this),
+                                        isInDirectory(vol) && vol.needsDirectoryUpdate && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            onClick: ()=>handleAdd(vol, i),
+                                            style: buttonStyle('orange'),
+                                            className: "jsx-690b48bb4d491725",
+                                            children: "✏️ Update in Directory"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                                            lineNumber: 165,
+                                            columnNumber: 17
+                                        }, this),
+                                        vol.spotsLeft === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            disabled: true,
+                                            style: buttonStyle('gray'),
+                                            className: "jsx-690b48bb4d491725",
+                                            children: "❌ Event Full"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                                            lineNumber: 171,
+                                            columnNumber: 17
+                                        }, this) : vol.lastEvent === vol.event ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            disabled: true,
+                                            style: buttonStyle('green'),
+                                            className: "jsx-690b48bb4d491725",
+                                            children: "✅ Volunteer Confirmed"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                                            lineNumber: 175,
+                                            columnNumber: 17
+                                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                            onClick: ()=>handleConfirm(vol, i),
+                                            style: buttonStyle('blue'),
+                                            className: "jsx-690b48bb4d491725",
+                                            children: "✅ Confirm to Event"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                                            lineNumber: 179,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/admin/review-signups/page.js",
+                                    lineNumber: 157,
+                                    columnNumber: 13
+                                }, this),
+                                statusRow === i && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: inlineToastStyle,
+                                    className: "jsx-690b48bb4d491725",
+                                    children: statusMessage
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/admin/review-signups/page.js",
+                                    lineNumber: 185,
+                                    columnNumber: 33
+                                }, this)
+                            ]
+                        }, i, true, {
+                            fileName: "[project]/src/app/admin/review-signups/page.js",
+                            lineNumber: 124,
+                            columnNumber: 11
+                        }, this)),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                        id: "690b48bb4d491725",
+                        children: "body{color:#000;background-color:#f4f4f4;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif}.event-card{background-color:#fff;border:1px solid #e5e5e5;border-radius:16px;margin-bottom:24px;padding:24px;box-shadow:0 8px 30px #0000000d}@media (prefers-color-scheme:dark){body{color:#fff;background-color:#121212}.event-card{color:#fff;background-color:#1e1e1e;border-color:#333}}"
+                    }, void 0, false, void 0, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/admin/review-signups/page.js",
-                lineNumber: 82,
+                lineNumber: 112,
                 columnNumber: 7
-            }, this),
-            signups.map((vol, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    style: eventCardStyle,
-                    className: "jsx-d38c63200ed9fb83" + " " + "event-card",
-                    children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            style: {
-                                marginBottom: 12
-                            },
-                            className: "jsx-d38c63200ed9fb83",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                    className: "jsx-d38c63200ed9fb83",
-                                    children: vol.name
-                                }, void 0, false, {
-                                    fileName: "[project]/src/app/admin/review-signups/page.js",
-                                    lineNumber: 94,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    style: {
-                                        fontSize: '0.9em',
-                                        marginTop: 6
-                                    },
-                                    className: "jsx-d38c63200ed9fb83",
-                                    children: vol.email
-                                }, void 0, false, {
-                                    fileName: "[project]/src/app/admin/review-signups/page.js",
-                                    lineNumber: 95,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    style: {
-                                        fontSize: '0.9em',
-                                        marginTop: 2
-                                    },
-                                    className: "jsx-d38c63200ed9fb83",
-                                    children: [
-                                        "📞 ",
-                                        vol.phone
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/admin/review-signups/page.js",
-                                    lineNumber: 96,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    style: {
-                                        fontSize: '0.9em',
-                                        marginTop: 6
-                                    },
-                                    className: "jsx-d38c63200ed9fb83",
-                                    children: [
-                                        "🗓️ ",
-                                        getWeekdayAbbr(vol.eventDate),
-                                        " – ",
-                                        vol.eventDate || vol.date
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/admin/review-signups/page.js",
-                                    lineNumber: 97,
-                                    columnNumber: 13
-                                }, this),
-                                vol.rating && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    style: {
-                                        fontSize: '0.9em',
-                                        marginTop: 6
-                                    },
-                                    className: "jsx-d38c63200ed9fb83",
-                                    children: [
-                                        "⭐ Rating: ",
-                                        vol.rating
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/admin/review-signups/page.js",
-                                    lineNumber: 101,
-                                    columnNumber: 15
-                                }, this),
-                                vol.lastEvent && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    style: {
-                                        fontSize: '0.9em',
-                                        marginTop: 6
-                                    },
-                                    className: "jsx-d38c63200ed9fb83",
-                                    children: [
-                                        "🕓 Last: ",
-                                        vol.lastEvent,
-                                        " (",
-                                        vol.lastDate,
-                                        ")"
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/admin/review-signups/page.js",
-                                    lineNumber: 104,
-                                    columnNumber: 15
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    style: {
-                                        fontSize: '0.9em',
-                                        marginTop: 6
-                                    },
-                                    className: "jsx-d38c63200ed9fb83",
-                                    children: [
-                                        "🧍‍♂️ Spots left: ",
-                                        vol.spotsLeft
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/src/app/admin/review-signups/page.js",
-                                    lineNumber: 108,
-                                    columnNumber: 13
-                                }, this)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/src/app/admin/review-signups/page.js",
-                            lineNumber: 93,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            style: {
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '10px'
-                            },
-                            className: "jsx-d38c63200ed9fb83",
-                            children: [
-                                !isInDirectory(vol) && !vol.needsDirectoryUpdate && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                    onClick: ()=>handleAdd(vol, i),
-                                    style: buttonStyle('green'),
-                                    className: "jsx-d38c63200ed9fb83",
-                                    children: "➕ Add to Directory"
-                                }, void 0, false, {
-                                    fileName: "[project]/src/app/admin/review-signups/page.js",
-                                    lineNumber: 115,
-                                    columnNumber: 15
-                                }, this),
-                                isInDirectory(vol) && vol.needsDirectoryUpdate && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                    onClick: ()=>handleAdd(vol, i),
-                                    style: buttonStyle('orange'),
-                                    className: "jsx-d38c63200ed9fb83",
-                                    children: "✏️ Update in Directory"
-                                }, void 0, false, {
-                                    fileName: "[project]/src/app/admin/review-signups/page.js",
-                                    lineNumber: 124,
-                                    columnNumber: 15
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                    onClick: ()=>vol.spotsLeft > 0 && handleConfirm(vol, i),
-                                    disabled: vol.spotsLeft === 0,
-                                    style: buttonStyle(vol.spotsLeft > 0 ? 'blue' : 'gray'),
-                                    className: "jsx-d38c63200ed9fb83",
-                                    children: "✅ Confirm to Event"
-                                }, void 0, false, {
-                                    fileName: "[project]/src/app/admin/review-signups/page.js",
-                                    lineNumber: 132,
-                                    columnNumber: 13
-                                }, this)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/src/app/admin/review-signups/page.js",
-                            lineNumber: 113,
-                            columnNumber: 11
-                        }, this),
-                        statusRow === i && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            style: inlineToastStyle,
-                            className: "jsx-d38c63200ed9fb83",
-                            children: statusMessage
-                        }, void 0, false, {
-                            fileName: "[project]/src/app/admin/review-signups/page.js",
-                            lineNumber: 142,
-                            columnNumber: 13
-                        }, this)
-                    ]
-                }, i, true, {
-                    fileName: "[project]/src/app/admin/review-signups/page.js",
-                    lineNumber: 92,
-                    columnNumber: 9
-                }, this)),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                id: "d38c63200ed9fb83",
-                children: "body{color:#000;background-color:#f4f4f4;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif}.event-card{background-color:#fff;border:1px solid #e5e5e5;border-radius:16px;margin-bottom:24px;padding:24px;box-shadow:0 8px 30px #0000000d}@media (prefers-color-scheme:dark){body{color:#fff;background-color:#121212}.event-card{color:#fff;background-color:#1e1e1e;border-color:#333}}"
-            }, void 0, false, void 0, this)
+            }, this)
         ]
-    }, void 0, true, {
-        fileName: "[project]/src/app/admin/review-signups/page.js",
-        lineNumber: 81,
-        columnNumber: 5
-    }, this);
+    }, void 0, true);
 }
 const pageWrapper = {
     maxWidth: 720,

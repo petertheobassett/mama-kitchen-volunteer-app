@@ -1,6 +1,9 @@
+// Fix for dashboard volunteer cards to access full event row
+
 'use client';
 
 import { useEffect, useState } from 'react';
+import Header from '@/components/Header';
 
 export default function Home() {
   const [events, setEvents] = useState([]);
@@ -50,19 +53,21 @@ export default function Home() {
   }
 
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // local midnight
-
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const pastEvents = [];
   const futureEvents = [];
 
   if (Array.isArray(events)) {
     events.forEach((eventObj, index) => {
-      const parsedDate = new Date(eventObj.parsedDate);
-      if (isNaN(parsedDate)) return;
+      const [yyyy, mm, dd] = eventObj.date.split('-').map(Number);
+      const parsedDate = new Date(yyyy, mm - 1, dd);
+      if (isNaN(parsedDate) || parsedDate.getFullYear() < 2000) return;
 
       const eventDay = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
+      const row = eventObj.raw;
+
       const eventData = {
-        row: eventObj.raw,
+        row,
         rowIndex: index,
         parsedDate,
       };
@@ -76,9 +81,6 @@ export default function Home() {
 
     futureEvents.sort((a, b) => a.parsedDate - b.parsedDate);
     pastEvents.sort((a, b) => b.parsedDate - a.parsedDate);
-
-    console.log('🔵 Future Events:', futureEvents.map(e => e.row[1]));
-    console.log('⚫ Past Events:', pastEvents.map(e => e.row[1]));
   }
 
   function renderEventGroup(eventsList, title, color) {
@@ -89,7 +91,12 @@ export default function Home() {
       <>
         <h3 className={`section-title ${isPast ? 'past' : 'future'}`}>{title}</h3>
         {eventsList.map(({ row, rowIndex, parsedDate }) => {
-          const formattedDate = parsedDate.toDateString();
+          const formattedDate = parsedDate.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          });
           const [
             _, eventName = '', expected = '', lead = '', leadPhone = '',
             vol1 = '', phone1 = '', vol2 = '', phone2 = '',
@@ -101,42 +108,19 @@ export default function Home() {
           const sheetRow = rowIndex + 2;
 
           return (
-            <div
-              key={rowIndex}
-              className="event-card"
-              style={{ ...eventCardStyle, marginTop: rowIndex === 0 ? 24 : 12 }}
-            >
-              <div style={{
-                fontWeight: 600,
-                marginBottom: '8px',
-                fontSize: '1.05em',
-                textAlign: 'center'
-              }}>
+            <div key={rowIndex} className="event-card" style={{ ...eventCardStyle, marginTop: rowIndex === 0 ? 24 : 12 }}>
+              <div style={{ fontWeight: 600, marginBottom: '8px', fontSize: '1.05em', textAlign: 'center' }}>
                 {eventName}<br />
-                <span style={{
-                  fontWeight: 400,
-                  display: 'inline-block',
-                  marginTop: '4px',
-                  marginBottom: '4px'
-                }}>
+                <span style={{ fontWeight: 400, display: 'inline-block', marginTop: '4px', marginBottom: '4px' }}>
                   ({formattedDate})
                 </span>
                 {expected && (
-                  <div style={{
-                    marginTop: '6px',
-                    fontSize: '0.95em',
-                    color: 'inherit'
-                  }}>
+                  <div style={{ marginTop: '6px', fontSize: '0.95em' }}>
                     Expected attendees: {expected}
                   </div>
                 )}
                 {lead && (
-                  <div style={{
-                    marginTop: '10px',
-                    marginBottom: '20px',
-                    fontSize: '0.95em',
-                    color: 'inherit'
-                  }}>
+                  <div style={{ marginTop: '10px', marginBottom: '20px', fontSize: '0.95em' }}>
                     Kitchen lead: {lead}<br />
                     {leadPhone && (
                       <a href={`sms:${leadPhone}`} style={{ color: '#0079c2', textDecoration: 'none', display: 'inline-block', marginTop: '10px' }}>
@@ -148,12 +132,9 @@ export default function Home() {
               </div>
 
               {[
-                [vol1, phone1, att1],
-                [vol2, phone2, att2],
-                [vol3, phone3, att3],
-                [vol4, phone4, att4],
-                [vol5, phone5, att5],
-                [vol6, phone6, att6],
+                [vol1, phone1, att1], [vol2, phone2, att2],
+                [vol3, phone3, att3], [vol4, phone4, att4],
+                [vol5, phone5, att5], [vol6, phone6, att6]
               ].map(([vol, phone, att], i) => (
                 vol ? (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
@@ -161,9 +142,7 @@ export default function Home() {
                       <input
                         type="checkbox"
                         defaultChecked={att === '👍' || att === 'TRUE'}
-                        onChange={e =>
-                          toggleAttendance(sheetRow, ATTENDANCE_COLUMN_START + i, e.target.checked)
-                        }
+                        onChange={e => toggleAttendance(sheetRow, ATTENDANCE_COLUMN_START + i, e.target.checked)}
                       /> {vol}
                     </label>
                     {phone && (
@@ -198,81 +177,84 @@ export default function Home() {
   }
 
   return (
-    <div style={pageWrapper}>
-      <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <img
-          src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png"
-          alt="MCMA Kitchen Logo"
-          style={{ maxWidth: 120, marginBottom: 12 }}
-        />
-        <h2 style={titleStyle}>Volunteer Dashboard</h2>
-      </div>
+    <>
+      <Header autoCollapse={true} />
+      <div style={pageWrapper}>
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <img
+            src="https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png"
+            alt="MCMA Kitchen Logo"
+            style={{ maxWidth: 120, marginBottom: 12 }}
+          />
+          <h2 style={titleStyle}>Volunteer Dashboard</h2>
+        </div>
 
-      {renderEventGroup(futureEvents, '🔵 Upcoming Events', 'navy')}
-      {renderEventGroup(pastEvents, '⚫ Past Events', 'black')}
+        {renderEventGroup(futureEvents, '🔵 Upcoming Events', 'navy')}
+        {renderEventGroup(pastEvents, '⚫ Past Events', 'black')}
 
-      <style jsx global>{`
-        body {
-          background-color: #f4f4f4;
-          color: #000;
-          transition: background-color 0.3s ease, color 0.3s ease;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        .event-card {
-          background-color: #ffffff;
-          border: 1px solid #e5e5e5;
-          border-radius: 16px;
-          padding: 24px;
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
-          color: #000000;
-        }
-
-        .section-title {
-          margin-top: 40px;
-          font-size: 1.25em;
-          font-weight: 600;
-        }
-
-        .section-title.future {
-          color: navy;
-        }
-
-        .section-title.past {
-          color: black;
-        }
-
-        @media (prefers-color-scheme: dark) {
+        <style jsx global>{`
           body {
-            background-color: #121212;
-            color: #ffffff;
+            background-color: #f4f4f4;
+            color: #000;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
           }
 
           .event-card {
-            background-color: #1e1e1e;
-            border-color: #333;
-            color: #ffffff;
+            background-color: #ffffff;
+            border: 1px solid #e5e5e5;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+            color: #000000;
+          }
+
+          .section-title {
+            margin-top: 40px;
+            font-size: 1.25em;
+            font-weight: 600;
           }
 
           .section-title.future {
-            color: #66aaff;
+            color: navy;
           }
 
           .section-title.past {
-            color: #ccc;
+            color: black;
           }
 
-          a[href^="sms:"] {
-            background-color: #2980b9 !important;
-            color: white !important;
+          @media (prefers-color-scheme: dark) {
+            body {
+              background-color: #121212;
+              color: #ffffff;
+            }
+
+            .event-card {
+              background-color: #1e1e1e;
+              border-color: #333;
+              color: #ffffff;
+            }
+
+            .section-title.future {
+              color: #66aaff;
+            }
+
+            .section-title.past {
+              color: #ccc;
+            }
+
+            a[href^="sms:"] {
+              background-color: #2980b9 !important;
+              color: white !important;
+            }
           }
-        }
-      `}</style>
-    </div>
+        `}</style>
+      </div>
+    </>
   );
 }
 
-// Styles (unchanged)
+// Styles
 const pageWrapper = { maxWidth: 720, margin: '0 auto', padding: 32 };
 const titleStyle = { textAlign: 'center', fontSize: '1.8em', fontWeight: 600 };
 const eventCardStyle = { padding: 24, borderRadius: 16, border: '1px solid', boxShadow: '0 8px 30px rgba(0,0,0,0.05)', marginBottom: 32 };

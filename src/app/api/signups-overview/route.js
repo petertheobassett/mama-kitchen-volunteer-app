@@ -30,10 +30,18 @@ export async function GET() {
       (str || '').replace(/\s+/g, ' ').trim().toLowerCase();
 
     const toISODate = (val) => {
-      const date = new Date(val);
-      if (isNaN(date)) return '';
-      return date.toISOString().slice(0, 10);
-    };
+      if (!val) return '';
+      if (typeof val === 'number' && !isNaN(val)) {
+        // fallback: serial date
+        const base = new Date(1899, 11, 30);
+        const parsed = new Date(base.getTime() + val * 24 * 60 * 60 * 1000);
+        return parsed.toISOString().slice(0, 10);
+      }
+      const [yyyy, m, d] = String(val).split('-');
+      if (!yyyy || !m || !d) return '';
+      const parsed = new Date(+yyyy, +m - 1, +d);
+      return isNaN(parsed) ? '' : parsed.toISOString().slice(0, 10);
+    };    
 
     const getVolunteerHistory = (volunteerName) => {
       const normalized = normalize(volunteerName);
@@ -104,12 +112,11 @@ export async function GET() {
     });
 
     return Response.json(enriched);
-
   } catch (err) {
     console.error('❌ signups-overview error:', err);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 }

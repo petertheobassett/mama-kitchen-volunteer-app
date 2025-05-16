@@ -27,18 +27,22 @@ function SignupPage() {
     const [events, setEvents] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [eventName, setEventName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
     const [eventDate, setEventDate] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
+    const [selectedSpotsLeft, setSelectedSpotsLeft] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [name, setName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
     const [phone, setPhone] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
     const [email, setEmail] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
     const [status, setStatus] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [submittedData, setSubmittedData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const parseYMDToLocal = (dateStr)=>{
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        };
         fetch('/api/get-signup-events').then((res)=>res.json()).then((data)=>{
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
             const future = data.filter((event)=>{
-                const eventDay = new Date(event.date);
-                eventDay.setHours(0, 0, 0, 0);
+                const eventDay = parseYMDToLocal(event.date);
                 return eventDay >= today;
             });
             setEvents(future);
@@ -56,6 +60,10 @@ function SignupPage() {
     async function handleSubmit(e) {
         e.preventDefault();
         setStatus(null);
+        if (selectedSpotsLeft === 0) {
+            setStatus('❌ This event is already full. Please choose another.');
+            return;
+        }
         const formattedPhone = formatPhone(phone);
         if (!formattedPhone) {
             setStatus('❌ Invalid phone number. Please enter 10 digits.');
@@ -90,6 +98,7 @@ function SignupPage() {
                 setSubmittedData(result.submitted);
                 setEventName('');
                 setEventDate('');
+                setSelectedSpotsLeft(null);
                 setName('');
                 setPhone('');
                 setEmail('');
@@ -100,426 +109,448 @@ function SignupPage() {
             setStatus('❌ Something went wrong. Please try again.');
         }
     }
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        style: containerStyle,
-        className: "jsx-cfc7e4a88842e5a6",
-        children: [
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                style: {
-                    textAlign: 'center',
-                    marginBottom: 24
-                },
-                className: "jsx-cfc7e4a88842e5a6",
-                children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
-                        src: "https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png",
-                        alt: "MCMA Kitchen Logo",
-                        style: {
-                            maxWidth: 120,
-                            marginBottom: 12
-                        },
-                        className: "jsx-cfc7e4a88842e5a6"
-                    }, void 0, false, {
-                        fileName: "[project]/src/app/signup/page.js",
-                        lineNumber: 95,
-                        columnNumber: 9
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                        style: titleStyle,
-                        className: "jsx-cfc7e4a88842e5a6",
-                        children: "Kitchen Volunteer Signup"
-                    }, void 0, false, {
-                        fileName: "[project]/src/app/signup/page.js",
-                        lineNumber: 100,
-                        columnNumber: 9
-                    }, this)
-                ]
-            }, void 0, true, {
-                fileName: "[project]/src/app/signup/page.js",
-                lineNumber: 94,
-                columnNumber: 7
-            }, this),
-            submittedData ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
-                children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        style: confirmationBox,
-                        className: "jsx-cfc7e4a88842e5a6" + " " + "confirmation-box",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                style: {
-                                    marginBottom: 12
-                                },
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: "✅ You're signed up!"
-                            }, void 0, false, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 106,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                        className: "jsx-cfc7e4a88842e5a6",
-                                        children: "Event:"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 107,
-                                        columnNumber: 16
-                                    }, this),
-                                    " ",
-                                    submittedData.eventName
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 107,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                        className: "jsx-cfc7e4a88842e5a6",
-                                        children: "Date:"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 108,
-                                        columnNumber: 16
-                                    }, this),
-                                    " ",
-                                    submittedData.formattedEventDate
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 108,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                        className: "jsx-cfc7e4a88842e5a6",
-                                        children: "Name:"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 109,
-                                        columnNumber: 16
-                                    }, this),
-                                    " ",
-                                    submittedData.name
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 109,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                        className: "jsx-cfc7e4a88842e5a6",
-                                        children: "Phone:"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 110,
-                                        columnNumber: 16
-                                    }, this),
-                                    " ",
-                                    submittedData.formattedPhone
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 110,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                        className: "jsx-cfc7e4a88842e5a6",
-                                        children: "Email:"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 111,
-                                        columnNumber: 16
-                                    }, this),
-                                    " ",
-                                    submittedData.email
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 111,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                style: {
-                                    marginTop: 20
-                                },
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: "You’ll receive an email confirmation shortly."
-                            }, void 0, false, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 112,
-                                columnNumber: 13
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/src/app/signup/page.js",
-                        lineNumber: 105,
-                        columnNumber: 11
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                        style: disclaimerStyle,
-                        className: "jsx-cfc7e4a88842e5a6",
-                        children: "We respect your privacy. Your information is used only for coordinating volunteers. It will never be sold or shared."
-                    }, void 0, false, {
-                        fileName: "[project]/src/app/signup/page.js",
-                        lineNumber: 114,
-                        columnNumber: 11
-                    }, this)
-                ]
-            }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
-                children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
-                        onSubmit: handleSubmit,
-                        style: formStyle,
-                        className: "jsx-cfc7e4a88842e5a6",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                style: fieldStyle,
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                        htmlFor: "event",
-                                        style: labelStyle,
-                                        className: "jsx-cfc7e4a88842e5a6",
-                                        children: "Event"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 122,
-                                        columnNumber: 15
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        style: {
-                                            position: 'relative'
-                                        },
-                                        className: "jsx-cfc7e4a88842e5a6",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                                                id: "event",
-                                                name: "event",
-                                                required: true,
-                                                value: eventDate && eventName ? `${eventDate}---${eventName}` : '',
-                                                onChange: (e)=>{
-                                                    const [selectedDate, ...nameParts] = e.target.value.split('---');
-                                                    const selectedName = nameParts.join('---');
-                                                    setEventDate(selectedDate);
-                                                    setEventName(selectedName);
-                                                },
-                                                style: inputStyle,
-                                                className: "jsx-cfc7e4a88842e5a6",
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                        value: "",
-                                                        className: "jsx-cfc7e4a88842e5a6",
-                                                        children: "-- Select an event --"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/app/signup/page.js",
-                                                        lineNumber: 137,
-                                                        columnNumber: 19
-                                                    }, this),
-                                                    events.map(({ label, name, date })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                            value: `${date}---${name}`,
-                                                            className: "jsx-cfc7e4a88842e5a6",
-                                                            children: label
-                                                        }, label, false, {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            style: containerStyle,
+            className: "jsx-591791e2cf884385",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        textAlign: 'center',
+                        marginBottom: 24
+                    },
+                    className: "jsx-591791e2cf884385",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                            src: "https://mcma.s3.us-east-1.amazonaws.com/mcmaLogo.png",
+                            alt: "MCMA Kitchen Logo",
+                            style: {
+                                maxWidth: 120,
+                                marginBottom: 12
+                            },
+                            className: "jsx-591791e2cf884385"
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/signup/page.js",
+                            lineNumber: 108,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                            style: titleStyle,
+                            className: "jsx-591791e2cf884385",
+                            children: "Kitchen Volunteer Signup"
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/signup/page.js",
+                            lineNumber: 113,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/signup/page.js",
+                    lineNumber: 107,
+                    columnNumber: 9
+                }, this),
+                submittedData ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            style: confirmationBox,
+                            className: "jsx-591791e2cf884385" + " " + "confirmation-box",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                    style: {
+                                        marginBottom: 12
+                                    },
+                                    className: "jsx-591791e2cf884385",
+                                    children: "✅ You're signed up!"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 119,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    className: "jsx-591791e2cf884385",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                            className: "jsx-591791e2cf884385",
+                                            children: "Event:"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 120,
+                                            columnNumber: 18
+                                        }, this),
+                                        " ",
+                                        submittedData.eventName
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 120,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    className: "jsx-591791e2cf884385",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                            className: "jsx-591791e2cf884385",
+                                            children: "Date:"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 121,
+                                            columnNumber: 18
+                                        }, this),
+                                        " ",
+                                        submittedData.formattedEventDate
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 121,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    className: "jsx-591791e2cf884385",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                            className: "jsx-591791e2cf884385",
+                                            children: "Name:"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 122,
+                                            columnNumber: 18
+                                        }, this),
+                                        " ",
+                                        submittedData.name
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 122,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    className: "jsx-591791e2cf884385",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                            className: "jsx-591791e2cf884385",
+                                            children: "Phone:"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 123,
+                                            columnNumber: 18
+                                        }, this),
+                                        " ",
+                                        submittedData.formattedPhone
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 123,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    className: "jsx-591791e2cf884385",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                            className: "jsx-591791e2cf884385",
+                                            children: "Email:"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 124,
+                                            columnNumber: 18
+                                        }, this),
+                                        " ",
+                                        submittedData.email
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 124,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    style: {
+                                        marginTop: 20
+                                    },
+                                    className: "jsx-591791e2cf884385",
+                                    children: "You’ll receive an email confirmation shortly."
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 125,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/signup/page.js",
+                            lineNumber: 118,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            style: disclaimerStyle,
+                            className: "jsx-591791e2cf884385",
+                            children: "We respect your privacy. Your information is used only for coordinating volunteers. It will never be sold or shared."
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/signup/page.js",
+                            lineNumber: 127,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
+                            onSubmit: handleSubmit,
+                            style: formStyle,
+                            className: "jsx-591791e2cf884385",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: fieldStyle,
+                                    className: "jsx-591791e2cf884385",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                            htmlFor: "event",
+                                            style: labelStyle,
+                                            className: "jsx-591791e2cf884385",
+                                            children: "Event"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 135,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            style: {
+                                                position: 'relative'
+                                            },
+                                            className: "jsx-591791e2cf884385",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                                    id: "event",
+                                                    name: "event",
+                                                    required: true,
+                                                    value: eventDate && eventName ? `${eventDate}---${eventName}` : '',
+                                                    onChange: (e)=>{
+                                                        const [selectedDate, ...nameParts] = e.target.value.split('---');
+                                                        const selectedName = nameParts.join('---');
+                                                        const eventMatch = events.find((ev)=>ev.date === selectedDate && ev.name === selectedName);
+                                                        setEventDate(selectedDate);
+                                                        setEventName(selectedName);
+                                                        setSelectedSpotsLeft(eventMatch?.spotsLeft ?? null);
+                                                    },
+                                                    style: inputStyle,
+                                                    className: "jsx-591791e2cf884385",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                            value: "",
+                                                            className: "jsx-591791e2cf884385",
+                                                            children: "-- Select an event --"
+                                                        }, void 0, false, {
                                                             fileName: "[project]/src/app/signup/page.js",
-                                                            lineNumber: 139,
+                                                            lineNumber: 152,
                                                             columnNumber: 21
-                                                        }, this))
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/src/app/signup/page.js",
-                                                lineNumber: 124,
-                                                columnNumber: 17
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                style: chevronStyle,
-                                                className: "jsx-cfc7e4a88842e5a6",
-                                                children: "▼"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/app/signup/page.js",
-                                                lineNumber: 144,
-                                                columnNumber: 17
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 123,
-                                        columnNumber: 15
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 121,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                style: fieldStyle,
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                        htmlFor: "name",
-                                        style: labelStyle,
-                                        className: "jsx-cfc7e4a88842e5a6",
-                                        children: "Name"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 149,
-                                        columnNumber: 15
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                        type: "text",
-                                        id: "name",
-                                        name: "name",
-                                        value: name,
-                                        onChange: (e)=>setName(e.target.value),
-                                        style: inputStyle,
-                                        required: true,
-                                        className: "jsx-cfc7e4a88842e5a6"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 150,
-                                        columnNumber: 15
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 148,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                style: fieldStyle,
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                        htmlFor: "phone",
-                                        style: labelStyle,
-                                        className: "jsx-cfc7e4a88842e5a6",
-                                        children: "Phone"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 162,
-                                        columnNumber: 15
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                        type: "tel",
-                                        id: "phone",
-                                        name: "phone",
-                                        value: phone,
-                                        onChange: (e)=>setPhone(e.target.value),
-                                        onBlur: (e)=>{
-                                            const formatted = formatPhone(e.target.value);
-                                            if (formatted) setPhone(formatted);
-                                            else setStatus('❌ Invalid phone number (must be 10 digits)');
-                                        },
-                                        style: inputStyle,
-                                        required: true,
-                                        className: "jsx-cfc7e4a88842e5a6"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 163,
-                                        columnNumber: 15
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 161,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                style: fieldStyle,
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                        htmlFor: "email",
-                                        style: labelStyle,
-                                        className: "jsx-cfc7e4a88842e5a6",
-                                        children: "Email"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 180,
-                                        columnNumber: 15
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                        type: "email",
-                                        id: "email",
-                                        name: "email",
-                                        value: email,
-                                        onChange: (e)=>setEmail(e.target.value),
-                                        style: inputStyle,
-                                        required: true,
-                                        className: "jsx-cfc7e4a88842e5a6"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/signup/page.js",
-                                        lineNumber: 181,
-                                        columnNumber: 15
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 179,
-                                columnNumber: 13
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                type: "submit",
-                                style: buttonStyle,
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: "Submit"
-                            }, void 0, false, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 192,
-                                columnNumber: 13
-                            }, this),
-                            status && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                style: {
-                                    marginTop: 20,
-                                    fontSize: '0.95em'
-                                },
-                                className: "jsx-cfc7e4a88842e5a6",
-                                children: status
-                            }, void 0, false, {
-                                fileName: "[project]/src/app/signup/page.js",
-                                lineNumber: 193,
-                                columnNumber: 24
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/src/app/signup/page.js",
-                        lineNumber: 120,
-                        columnNumber: 11
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                        style: disclaimerStyle,
-                        className: "jsx-cfc7e4a88842e5a6",
-                        children: "We respect your privacy. Your information is used only for coordinating volunteers. It will never be sold or shared."
-                    }, void 0, false, {
-                        fileName: "[project]/src/app/signup/page.js",
-                        lineNumber: 195,
-                        columnNumber: 11
-                    }, this)
-                ]
-            }, void 0, true),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                id: "cfc7e4a88842e5a6",
-                children: "body{color:#000;background-color:#fff;transition:background-color .3s,color .3s}@media (prefers-color-scheme:dark){body{color:#fff;background-color:#121212}form{background:#1e1e1e!important;border-color:#333!important}input,select{color:#fff!important;background-color:#2a2a2a!important;border-color:#444!important}label{color:#ccc!important}button{color:#000!important;background-color:#e0e0e0!important}.confirmation-box{background:#1f1f1f!important;border-color:#333!important}}"
-            }, void 0, false, void 0, this)
-        ]
-    }, void 0, true, {
-        fileName: "[project]/src/app/signup/page.js",
-        lineNumber: 93,
-        columnNumber: 5
-    }, this);
+                                                        }, this),
+                                                        events.map(({ label, name, date })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                                value: `${date}---${name}`,
+                                                                className: "jsx-591791e2cf884385",
+                                                                children: label
+                                                            }, label, false, {
+                                                                fileName: "[project]/src/app/signup/page.js",
+                                                                lineNumber: 154,
+                                                                columnNumber: 23
+                                                            }, this))
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/signup/page.js",
+                                                    lineNumber: 137,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    style: chevronStyle,
+                                                    className: "jsx-591791e2cf884385",
+                                                    children: "▼"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/signup/page.js",
+                                                    lineNumber: 159,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 136,
+                                            columnNumber: 17
+                                        }, this),
+                                        selectedSpotsLeft === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            style: {
+                                                color: 'red',
+                                                marginTop: 6,
+                                                fontSize: '0.9em'
+                                            },
+                                            className: "jsx-591791e2cf884385",
+                                            children: "❌ This event is full. Please choose another."
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 162,
+                                            columnNumber: 19
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 134,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: fieldStyle,
+                                    className: "jsx-591791e2cf884385",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                            htmlFor: "name",
+                                            style: labelStyle,
+                                            className: "jsx-591791e2cf884385",
+                                            children: "Name"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 169,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                            type: "text",
+                                            id: "name",
+                                            name: "name",
+                                            value: name,
+                                            onChange: (e)=>setName(e.target.value),
+                                            style: inputStyle,
+                                            required: true,
+                                            className: "jsx-591791e2cf884385"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 170,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 168,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: fieldStyle,
+                                    className: "jsx-591791e2cf884385",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                            htmlFor: "phone",
+                                            style: labelStyle,
+                                            className: "jsx-591791e2cf884385",
+                                            children: "Phone"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 182,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                            type: "tel",
+                                            id: "phone",
+                                            name: "phone",
+                                            value: phone,
+                                            onChange: (e)=>setPhone(e.target.value),
+                                            onBlur: (e)=>{
+                                                const formatted = formatPhone(e.target.value);
+                                                if (formatted) setPhone(formatted);
+                                                else setStatus('❌ Invalid phone number (must be 10 digits)');
+                                            },
+                                            style: inputStyle,
+                                            required: true,
+                                            className: "jsx-591791e2cf884385"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 183,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 181,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: fieldStyle,
+                                    className: "jsx-591791e2cf884385",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                            htmlFor: "email",
+                                            style: labelStyle,
+                                            className: "jsx-591791e2cf884385",
+                                            children: "Email"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 200,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                            type: "email",
+                                            id: "email",
+                                            name: "email",
+                                            value: email,
+                                            onChange: (e)=>setEmail(e.target.value),
+                                            style: inputStyle,
+                                            required: true,
+                                            className: "jsx-591791e2cf884385"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/signup/page.js",
+                                            lineNumber: 201,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 199,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    type: "submit",
+                                    style: {
+                                        ...buttonStyle,
+                                        backgroundColor: selectedSpotsLeft === 0 ? '#aaa' : buttonStyle.backgroundColor,
+                                        cursor: selectedSpotsLeft === 0 ? 'not-allowed' : 'pointer'
+                                    },
+                                    disabled: selectedSpotsLeft === 0,
+                                    className: "jsx-591791e2cf884385",
+                                    children: "Submit"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 212,
+                                    columnNumber: 15
+                                }, this),
+                                status && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    style: {
+                                        marginTop: 20,
+                                        fontSize: '0.95em'
+                                    },
+                                    className: "jsx-591791e2cf884385",
+                                    children: status
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/signup/page.js",
+                                    lineNumber: 220,
+                                    columnNumber: 26
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/app/signup/page.js",
+                            lineNumber: 133,
+                            columnNumber: 13
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            style: disclaimerStyle,
+                            className: "jsx-591791e2cf884385",
+                            children: "We respect your privacy. Your information is used only for coordinating volunteers. It will never be sold or shared."
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/signup/page.js",
+                            lineNumber: 222,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                    id: "591791e2cf884385",
+                    children: "body{color:#000;background-color:#fff;transition:background-color .3s,color .3s}@media (prefers-color-scheme:dark){body{color:#fff;background-color:#121212}form{background:#1e1e1e!important;border-color:#333!important}input,select{color:#fff!important;background-color:#2a2a2a!important;border-color:#444!important}label{color:#ccc!important}button{color:#000!important;background-color:#e0e0e0!important}.confirmation-box{background:#1f1f1f!important;border-color:#333!important}}"
+                }, void 0, false, void 0, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/app/signup/page.js",
+            lineNumber: 106,
+            columnNumber: 7
+        }, this)
+    }, void 0, false);
 }
 // Styles
 const containerStyle = {
