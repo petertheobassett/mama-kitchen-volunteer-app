@@ -259,15 +259,15 @@ async function GET() {
         const sheetId = process.env.GOOGLE_SHEET_ID;
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: sheetId,
-            range: '2025 Schedule of Events!A2:Q1000'
+            range: '2025 Schedule of Events!A2:Z1000'
         });
         const rows = response.data.values || [];
         const events = rows.map((row, i)=>{
-            // Ensure row has at least 17 cells (columns A–Q)
+            // ✅ Ensure row includes all columns A–Z (26 columns)
             const padded = [
                 ...row
             ];
-            while(padded.length < 17)padded.push('');
+            while(padded.length < 26)padded.push('');
             const rawDate = padded[0];
             const name = padded[1];
             if (!rawDate || !name) return null;

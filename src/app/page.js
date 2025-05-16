@@ -1,5 +1,3 @@
-// Fix for dashboard volunteer cards to access full event row
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -34,22 +32,28 @@ export default function Home() {
         checked: checked ? '👍' : ''
       }),
     })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'OK') {
-          setUpdatedRow(row);
-          setUpdatedMessage('Attendance saved ✔');
-        } else {
-          setUpdatedRow(row);
-          setUpdatedMessage('Error saving attendance');
-        }
-        setTimeout(() => setUpdatedRow(null), 2000);
-      })
-      .catch(() => {
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'OK') {
         setUpdatedRow(row);
-        setUpdatedMessage('Network error');
-        setTimeout(() => setUpdatedRow(null), 2000);
-      });
+        setUpdatedMessage('Attendance saved ✔');
+
+        // ✅ Re-fetch the updated event data
+        fetch('/api/get-events')
+          .then(res => res.json())
+          .then(data => setEvents(data || []));
+      } else {
+        setUpdatedRow(row);
+        setUpdatedMessage('Error saving attendance');
+      }
+
+      setTimeout(() => setUpdatedRow(null), 2000);
+    })
+    .catch(() => {
+      setUpdatedRow(row);
+      setUpdatedMessage('Network error');
+      setTimeout(() => setUpdatedRow(null), 2000);
+    });
   }
 
   const now = new Date();
@@ -64,7 +68,7 @@ export default function Home() {
       if (isNaN(parsedDate) || parsedDate.getFullYear() < 2000) return;
 
       const eventDay = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
-      const row = eventObj.raw;
+      const row = [...eventObj.raw, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 
       const eventData = {
         row,
@@ -97,8 +101,9 @@ export default function Home() {
             day: 'numeric',
             year: 'numeric',
           });
+
           const [
-            _, eventName = '', expected = '', lead = '', leadPhone = '',
+            , eventName = '', expected = '', lead = '', leadPhone = '',
             vol1 = '', phone1 = '', vol2 = '', phone2 = '',
             vol3 = '', phone3 = '', vol4 = '', phone4 = '',
             vol5 = '', phone5 = '', vol6 = '', phone6 = '',
@@ -141,7 +146,7 @@ export default function Home() {
                     <label>
                       <input
                         type="checkbox"
-                        defaultChecked={att === '👍' || att === 'TRUE'}
+                        checked={att.trim() === '👍'}
                         onChange={e => toggleAttendance(sheetRow, ATTENDANCE_COLUMN_START + i, e.target.checked)}
                       /> {vol}
                     </label>

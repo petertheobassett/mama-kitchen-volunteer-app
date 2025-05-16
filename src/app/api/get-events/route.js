@@ -14,15 +14,15 @@ export async function GET() {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: '2025 Schedule of Events!A2:Q1000',
+      range: '2025 Schedule of Events!A2:Z1000', // ✅ Includes attendance columns R–W
     });
 
     const rows = response.data.values || [];
 
     const events = rows.map((row, i) => {
-      // Ensure row has at least 17 cells (columns A–Q)
+      // ✅ Ensure row includes all columns A–Z (26 columns)
       const padded = [...row];
-      while (padded.length < 17) padded.push('');
+      while (padded.length < 26) padded.push('');
 
       const rawDate = padded[0];
       const name = padded[1];
@@ -35,21 +35,20 @@ export async function GET() {
       const dd = d.padStart(2, '0');
 
       const parsedDate = new Date(+yyyy, +mm - 1, +dd, 12);
-if (isNaN(parsedDate)) return null;
+      if (isNaN(parsedDate)) return null;
 
-const iso = `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}`;
+      const iso = `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}-${String(parsedDate.getDate()).padStart(2, '0')}`;
 
-return {
-  raw: padded,
-  date: iso,
-  label: `${parsedDate.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })} – ${name}`,
-};
-
+      return {
+        raw: padded,
+        date: iso,
+        label: `${parsedDate.toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        })} – ${name}`,
+      };
     }).filter(Boolean);
 
     return new Response(JSON.stringify(events), {

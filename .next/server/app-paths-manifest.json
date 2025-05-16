@@ -1,8 +1,7 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/admin/review-signups/page": "app/admin/review-signups/page.js",
-  "/api/add-to-directory/route": "app/api/add-to-directory/route.js",
-  "/api/confirm-to-event/route": "app/api/confirm-to-event/route.js",
-  "/api/signups-overview/route": "app/api/signups-overview/route.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js"
+  "/api/get-events/route": "app/api/get-events/route.js",
+  "/api/update-attendance/route": "app/api/update-attendance/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js"
 }
